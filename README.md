@@ -154,7 +154,14 @@ The Google Maps API key is configured via environment variables for security. To
 
 ### Tariff Editor Password
 
-The tariff editor is password-protected. The default password is `Hestavangen11`. To change it, edit the `DEFAULT_PASSWORD` constant in `src/components/TariffEditorModal.jsx`.
+The tariff editor is password-protected. The default password is `Hestavangen11`.
+
+**⚠️ Security Note**: This is client-side authentication only and provides minimal security. Anyone with browser dev tools can bypass it. For production use with sensitive pricing data, consider implementing a proper backend API with server-side authentication.
+
+To change the password, edit the `VITE_TARIFF_PASSWORD` in your `.env` file:
+```
+VITE_TARIFF_PASSWORD=your_custom_password
+```
 
 ## Usage
 

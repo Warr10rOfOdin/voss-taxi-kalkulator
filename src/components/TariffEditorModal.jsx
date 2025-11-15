@@ -7,7 +7,7 @@ import {
   PERIOD_KEYS
 } from '../utils/tariffCalculator';
 
-const DEFAULT_PASSWORD = 'Hestavangen11';
+const DEFAULT_PASSWORD = import.meta.env.VITE_TARIFF_PASSWORD || 'Hestavangen11';
 
 export default function TariffEditorModal({
   isOpen,
