@@ -7,6 +7,7 @@ import TariffTable from './components/TariffTable';
 import TariffEditorModal from './components/TariffEditorModal';
 import MapDisplay from './components/MapDisplay';
 import PrintOffer from './components/PrintOffer';
+import AddressAutocomplete from './components/AddressAutocomplete';
 
 function App() {
   // Language state
@@ -198,13 +199,13 @@ function App() {
               <label htmlFor="startAddress">{t.startAddress}</label>
               <HelpTooltip text={t.helpStartAddress} />
             </div>
-            <input
-              type="text"
+            <AddressAutocomplete
               id="startAddress"
               value={startAddress}
               onChange={e => setStartAddress(e.target.value)}
               onKeyDown={handleStartAddressKeydown}
               placeholder="Hestavangen 11, Voss"
+              apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             />
           </div>
           <div className="form-group flex-1">
@@ -212,14 +213,14 @@ function App() {
               <label htmlFor="destAddress">{t.destAddress}</label>
               <HelpTooltip text={t.helpDestAddress} />
             </div>
-            <input
-              type="text"
+            <AddressAutocomplete
               id="destAddress"
-              ref={destAddressRef}
+              inputRef={destAddressRef}
               value={destAddress}
               onChange={e => setDestAddress(e.target.value)}
               onKeyDown={handleDestAddressKeydown}
               placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
+              apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             />
           </div>
           <button className="btn btn-primary top-fetch-btn">
@@ -237,13 +238,13 @@ function App() {
                     <label>{t.viaPoint} {index + 1}</label>
                     <HelpTooltip text={t.helpVia} />
                   </div>
-                  <input
-                    type="text"
-                    ref={el => viaInputRefs.current[index] = el}
+                  <AddressAutocomplete
+                    inputRef={el => viaInputRefs.current[index] = el}
                     value={via}
                     onChange={e => updateViaPoint(index, e.target.value)}
                     onKeyDown={e => handleViaKeydown(e, index)}
                     placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
+                    apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
                   />
                 </div>
                 <button 
