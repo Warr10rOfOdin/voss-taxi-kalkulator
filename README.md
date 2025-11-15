@@ -14,6 +14,7 @@ A web application for calculating and displaying taxi prices for Voss Taxi in No
 - 🌐 **Bilingual Support** - Norwegian and English interface
 - 🖨️ **Professional PDF Export** - Generate official-looking price estimates
 - ⏰ **Time-based Tariffs** - Automatic switching between Day, Evening, Saturday, Weekend/Night, and Holiday rates
+- 🎉 **Norwegian Holidays** - Automatic detection of 12 public holidays with høytid (holiday) tariff applied
 - 👥 **Vehicle Groups** - Support for 1-4, 5-6, 7-8, and 9-16 seat vehicles
 - ✏️ **Editable Tariffs** - Password-protected tariff editor
 - 📱 **Mobile Optimized** - Responsive design for all screen sizes
@@ -119,6 +120,28 @@ The pricing follows official Norwegian taxi tariff regulations:
 - Saturday (Sat 06:00-15:00): 1.3x
 - Weekend/Night (Sat 15:00-Mon 06:00): 1.35x
 - Holidays: 1.45x
+
+### Norwegian Public Holidays (Høytid Tariff)
+
+The system automatically applies the høytid (holiday) tariff on these 12 Norwegian public holidays:
+
+**Fixed Holidays:**
+- Nyttårsdag (New Year's Day) - January 1
+- Arbeidernes dag (Labour Day) - May 1
+- Grunnlovsdag (Constitution Day) - May 17
+- 1. juledag (Christmas Day) - December 25
+- 2. juledag (Boxing Day) - December 26
+
+**Moveable Holidays (calculated from Easter):**
+- Skjærtorsdag (Maundy Thursday) - 3 days before Easter
+- Langfredag (Good Friday) - 2 days before Easter
+- Påskedag (Easter Sunday)
+- 2. påskedag (Easter Monday) - 1 day after Easter
+- Kristi himmelfartsdag (Ascension Day) - 39 days after Easter
+- Pinsedag (Whit Sunday) - 49 days after Easter
+- 2. pinsedag (Whit Monday) - 50 days after Easter
+
+Holidays are automatically calculated using the Computus algorithm for years 2024-2027.
 
 ### Vehicle Group Multipliers
 - 1-4 seats: 1.0x
