@@ -7,6 +7,7 @@ A web application for calculating and displaying taxi prices for Voss Taxi in No
 ## Features
 
 - 🗺️ **Google Maps Integration** - Automatic route calculation with distance and duration
+- 🔍 **Address Autocomplete** - Dropdown suggestions for addresses powered by Google Places API
 - 📍 **Via Points** - Add multiple intermediate stops to your route
 - 💰 **Real-time Price Calculation** - Based on official Voss Taxi tariffs
 - 📊 **Tariff Breakdown** - See how price is distributed across different tariff periods
@@ -14,7 +15,8 @@ A web application for calculating and displaying taxi prices for Voss Taxi in No
 - 🖨️ **Professional PDF Export** - Generate official-looking price estimates
 - ⏰ **Time-based Tariffs** - Automatic switching between Day, Evening, Saturday, Weekend/Night, and Holiday rates
 - 👥 **Vehicle Groups** - Support for 1-4, 5-6, 7-8, and 9-16 seat vehicles
-- ✏️ **Editable Tariffs** - Adjust base rates as needed
+- ✏️ **Editable Tariffs** - Password-protected tariff editor
+- 📱 **Mobile Optimized** - Responsive design for all screen sizes
 
 ## Quick Start
 
@@ -32,6 +34,10 @@ cd voss-taxi-kalkulator
 
 # Install dependencies
 npm install
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env and add your Google Maps API key
 
 # Start development server
 npm run dev
@@ -126,22 +132,29 @@ The pricing follows official Norwegian taxi tariff regulations:
 
 ### Google Maps API Key
 
-The Google Maps API key is configured in `src/components/MapDisplay.jsx`. For production use, consider:
+The Google Maps API key is configured via environment variables for security. To set it up:
 
-1. Moving the key to an environment variable
-2. Restricting the API key in Google Cloud Console
-3. Setting up proper API key restrictions for your domain
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
 
-```javascript
-// src/components/MapDisplay.jsx
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-```
+2. Edit `.env` and add your Google Maps API key:
+   ```
+   VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
 
-Then create a `.env.local` file:
+3. Get your API key from [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
 
-```
-VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
-```
+4. **Important:** Restrict your API key in Google Cloud Console:
+   - Set HTTP referrer restrictions for your domain
+   - Enable only the required APIs: Maps JavaScript API and Places API
+
+**Note:** The `.env` file is git-ignored for security. Never commit API keys to version control.
+
+### Tariff Editor Password
+
+The tariff editor is password-protected. The default password is `Hestavangen11`. To change it, edit the `DEFAULT_PASSWORD` constant in `src/components/TariffEditorModal.jsx`.
 
 ## Usage
 

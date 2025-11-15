@@ -7,6 +7,8 @@ import {
   PERIOD_KEYS
 } from '../utils/tariffCalculator';
 
+const DEFAULT_PASSWORD = 'Hestavangen11';
+
 export default function TariffEditorModal({
   isOpen,
   onClose,
@@ -18,7 +20,10 @@ export default function TariffEditorModal({
   const [km0_10, setKm0_10] = useState(11.14);
   const [kmOver10, setKmOver10] = useState(21.23);
   const [minRate, setMinRate] = useState(8.42);
-  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   useEffect(() => {
     if (isOpen && initialBaseTariff14) {
       const normalized = normaliseBaseTariff14(initialBaseTariff14);
@@ -26,6 +31,12 @@ export default function TariffEditorModal({
       setKm0_10(normalized.km0_10);
       setKmOver10(normalized.kmOver10);
       setMinRate(normalized.min);
+    }
+    // Reset authentication when modal is closed
+    if (!isOpen) {
+      setIsAuthenticated(false);
+      setPassword('');
+      setPasswordError('');
     }
   }, [isOpen, initialBaseTariff14]);
   
@@ -43,16 +54,69 @@ export default function TariffEditorModal({
   const tariffs = deriveAllTariffs(currentBase);
   const previewMatrix = buildPriceMatrix({ km: 15.04, minutes: 22, tariffs });
   
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    if (password === DEFAULT_PASSWORD) {
+      setIsAuthenticated(true);
+      setPasswordError('');
+    } else {
+      setPasswordError(translations.passwordError || 'Feil passord');
+    }
+  };
+
   const handleSave = () => {
     const cleaned = normaliseBaseTariff14(currentBase);
     onSave(cleaned);
     onClose();
   };
-  
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={e => e.stopPropagation()}>
         <div className="modal-title">{translations.modalTitle}</div>
+
+        {!isAuthenticated ? (
+          <div className="password-form">
+            <p style={{ marginBottom: '16px', color: '#a0a0a0' }}>
+              {translations.passwordPrompt || 'Skriv inn passord for å redigere takster:'}
+            </p>
+            <form onSubmit={handlePasswordSubmit}>
+              <div className="form-group">
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={translations.passwordPlaceholder || 'Passord'}
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: '#1a1a2e',
+                    border: '1px solid #3a3a5c',
+                    borderRadius: '6px',
+                    color: '#e0e0e0',
+                    fontSize: '0.95rem'
+                  }}
+                />
+                {passwordError && (
+                  <div style={{ color: '#e74c3c', fontSize: '0.85rem', marginTop: '8px' }}>
+                    {passwordError}
+                  </div>
+                )}
+              </div>
+              <div className="modal-actions" style={{ marginTop: '16px' }}>
+                <button type="button" className="btn btn-outline" onClick={onClose}>
+                  {translations.cancel || 'Avbryt'}
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  {translations.unlock || 'Lås opp'}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <>
+            <div className="modal-title" style={{ display: 'none' }}>{translations.modalTitle}</div>
         
         <div className="modal-inputs">
           <div className="form-group">
@@ -138,6 +202,8 @@ export default function TariffEditorModal({
             {translations.saveTariffs}
           </button>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

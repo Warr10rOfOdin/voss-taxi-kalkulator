@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyAA99BmBcAbNyalC8dQhiiN6hfkYwTC12Q';
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 export default function MapDisplay({
   startAddress,
