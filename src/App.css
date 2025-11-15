@@ -780,10 +780,21 @@ body {
 
   .right-column {
     position: static;
+    width: 100%;
+    order: -1; /* Move map to top on tablets */
+  }
+
+  .left-column {
+    width: 100%;
+  }
+
+  .map-card {
+    height: auto;
   }
 
   .map-wrapper {
-    min-height: 350px;
+    min-height: 400px;
+    width: 100%;
   }
 }
 
@@ -817,10 +828,28 @@ body {
 
   .estimate-price-box {
     min-width: auto;
+    width: 100%;
+  }
+
+  /* Map optimization for mobile */
+  .right-column {
+    order: -1; /* Show map first */
+    margin-bottom: 20px;
+  }
+
+  .map-card {
+    height: auto;
   }
 
   .map-wrapper {
-    min-height: 300px;
+    min-height: 350px;
+    width: 100%;
+    position: relative;
+  }
+
+  .map-container {
+    width: 100%;
+    min-height: 350px;
   }
 
   /* Make buttons full width on mobile */
@@ -832,6 +861,27 @@ body {
   .help-tooltip {
     max-width: 200px;
     font-size: 0.75rem;
+  }
+
+  /* Better action bar layout */
+  .action-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .action-bar .btn {
+    flex: 1 1 auto;
+    min-width: calc(50% - 6px);
+  }
+
+  .action-bar .checkbox-label {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+
+  .spacer {
+    display: none;
   }
 }
 
@@ -870,12 +920,18 @@ body {
     font-size: 0.9rem;
   }
 
+  /* Larger map on small phones for better visibility */
   .map-wrapper {
-    min-height: 250px;
+    min-height: 300px;
+    width: 100%;
+  }
+
+  .map-container {
+    min-height: 300px;
   }
 
   /* Stack estimate price differently on very small screens */
-  .estimate-price {
+  .estimate-price-value {
     font-size: 2rem;
   }
 
@@ -888,12 +944,19 @@ body {
 
   /* Improve table readability on mobile */
   .tariff-table {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .tariff-table th,
   .tariff-table td {
-    padding: 8px 6px;
+    padding: 6px 4px;
+    font-size: 0.75rem;
+  }
+
+  /* Horizontal scroll for tariff table */
+  .tariff-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Help tooltips - better positioning on mobile */
@@ -909,5 +972,16 @@ body {
 
   .help-tooltip::after {
     display: none;
+  }
+
+  /* Action buttons stack vertically on small screens */
+  .action-bar .btn {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  /* Footer text smaller */
+  .footer {
+    font-size: 0.8rem;
   }
 }

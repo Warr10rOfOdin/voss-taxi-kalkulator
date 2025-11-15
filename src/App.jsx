@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { translations } from './locales/translations';
 import { DEFAULT_BASE_TARIFF_14 } from './utils/tariffCalculator';
+import { getNorwegianHolidays } from './utils/helligdager';
 import HelpTooltip from './components/HelpTooltip';
 import EstimatedPriceCard from './components/EstimatedPriceCard';
 import TariffTable from './components/TariffTable';
@@ -32,7 +33,7 @@ function App() {
   
   // Tariff state
   const [baseTariff14, setBaseTariff14] = useState(DEFAULT_BASE_TARIFF_14);
-  const [holidays] = useState([]);
+  const [holidays] = useState(() => getNorwegianHolidays());
   
   // Refs for keyboard navigation
   const destAddressRef = useRef(null);
@@ -49,21 +50,30 @@ function App() {
     setTripDate(dateStr);
   }, []);
   
-  // Sync map height with left column
+  // Sync map height with left column (desktop only)
   const syncMapHeight = useCallback(() => {
+    // Skip height syncing on mobile/tablet (let CSS handle it)
+    if (window.innerWidth <= 1024) {
+      const mapCard = document.getElementById('mapCard');
+      if (mapCard) {
+        mapCard.style.height = 'auto';
+      }
+      return;
+    }
+
     const estimateCard = document.getElementById('estimateCard');
     const tariffCard = document.getElementById('tariffTableCard');
     const mapCard = document.getElementById('mapCard');
-    
+
     if (mapCard && tariffCard) {
       let totalHeight = 0;
-      
+
       if (estimateCard && estimateEnabled) {
         totalHeight += estimateCard.offsetHeight + 20;
       }
-      
+
       totalHeight += tariffCard.offsetHeight;
-      
+
       const minHeight = 400;
       mapCard.style.height = Math.max(totalHeight, minHeight) + 'px';
     }
