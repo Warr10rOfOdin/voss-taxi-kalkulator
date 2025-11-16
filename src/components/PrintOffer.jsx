@@ -58,62 +58,68 @@ export default function PrintOffer({
   return (
     <div className="print-offer" id="printOffer">
       <div className="offer-header">
-        <img src="/logo.png" alt="Voss Taxi" className="offer-logo-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'block'; }} />
-        <div className="offer-logo" style={{display: 'none'}}>🚕 Voss Taxi</div>
-        <div className="offer-title">{translations.offerTitle}</div>
+        <img src="/vosstaxi_logo_orange transparent.png" alt="Voss Taxi" className="offer-logo-img" />
+        <div className="offer-logo">Voss Taxi</div>
+        <div className="offer-date-header">
+          {translations.offerDate}: {dateStr}
+        </div>
       </div>
 
-      <div className="offer-date">
-        {translations.offerDate}: {dateStr}
-      </div>
+      <div className="offer-title">{translations.offerTitle}</div>
 
-      <div className="offer-section">
-        <div className="offer-section-title">{translations.offerRoute}</div>
-        <div className="offer-route-box">
-          <div className="offer-route-item">
-            <span className="offer-route-label">{translations.offerFrom}:</span>
-            <span>{startAddress || '-'}</span>
-          </div>
-          {viaAddresses.map((via, index) => (
-            via && (
-              <div className="offer-route-item" key={index}>
-                <span className="offer-route-label">{translations.offerVia} {index + 1}:</span>
-                <span>{via}</span>
+      <div className="offer-main-content">
+        <div className="offer-left-section">
+          <div className="offer-section">
+            <div className="offer-section-title">{translations.offerRoute}</div>
+            <div className="offer-route-box">
+              <div className="offer-route-item">
+                <span className="offer-route-label">{translations.offerFrom}:</span>
+                <span>{startAddress || '-'}</span>
               </div>
-            )
-          ))}
-          <div className="offer-route-item">
-            <span className="offer-route-label">{translations.offerTo}:</span>
-            <span>{destAddress || '-'}</span>
+              {viaAddresses.map((via, index) => (
+                via && (
+                  <div className="offer-route-item" key={index}>
+                    <span className="offer-route-label">{translations.offerVia} {index + 1}:</span>
+                    <span>{via}</span>
+                  </div>
+                )
+              ))}
+              <div className="offer-route-item">
+                <span className="offer-route-label">{translations.offerTo}:</span>
+                <span>{destAddress || '-'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="offer-section">
+            <div className="offer-section-title">{translations.offerDetails}</div>
+            <div className="offer-details-grid">
+              <div className="offer-detail-item">
+                <div className="offer-detail-label">{translations.gruppe}</div>
+                <div>{translations.groupLabels[vehicleGroup]}</div>
+              </div>
+              <div className="offer-detail-item">
+                <div className="offer-detail-label">{translations.periodeVedStart}</div>
+                <div>{periodLabel}</div>
+              </div>
+              <div className="offer-detail-item">
+                <div className="offer-detail-label">{translations.avstand}</div>
+                <div>{km.toFixed(1)} km</div>
+              </div>
+              <div className="offer-detail-item">
+                <div className="offer-detail-label">{translations.tid}</div>
+                <div>{minutes} min</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="offer-section">
-        <div className="offer-section-title">{translations.offerDetails}</div>
-        <div className="offer-details-grid">
-          <div className="offer-detail-item">
-            <div className="offer-detail-label">{translations.gruppe}</div>
-            <div>{translations.groupLabels[vehicleGroup]}</div>
-          </div>
-          <div className="offer-detail-item">
-            <div className="offer-detail-label">{translations.periodeVedStart}</div>
-            <div>{periodLabel}</div>
-          </div>
-          <div className="offer-detail-item">
-            <div className="offer-detail-label">{translations.avstand}</div>
-            <div>{km.toFixed(1)} km</div>
-          </div>
-          <div className="offer-detail-item">
-            <div className="offer-detail-label">{translations.tid}</div>
-            <div>{minutes} min</div>
+        <div className="offer-right-section">
+          <div className="offer-price-box">
+            <div className="offer-price-label">{translations.offerEstimate}</div>
+            <div className="offer-price-value">kr {totalPrice.toLocaleString('nb-NO')}</div>
           </div>
         </div>
-      </div>
-
-      <div className="offer-price-box">
-        <div className="offer-price-label">{translations.offerEstimate}</div>
-        <div className="offer-price-value">kr {totalPrice.toLocaleString('nb-NO')}</div>
       </div>
 
       {segments.length > 0 && (
@@ -148,7 +154,7 @@ export default function PrintOffer({
       )}
 
       {/* Full Tariff Price Table */}
-      <div className="offer-section" style={{ pageBreakBefore: 'avoid', marginTop: '30px' }}>
+      <div className="offer-section" style={{ pageBreakBefore: 'avoid', marginTop: '10px' }}>
         <div className="offer-section-title">{translations.tariffTableTitle}</div>
         <table className="offer-tariff-table">
           <thead>
@@ -170,7 +176,7 @@ export default function PrintOffer({
             ))}
           </tbody>
         </table>
-        <div style={{ fontSize: '9pt', marginTop: '10px', color: '#666' }}>
+        <div style={{ fontSize: '7pt', marginTop: '5px', color: '#666' }}>
           {translations.notesPeriod}
         </div>
       </div>

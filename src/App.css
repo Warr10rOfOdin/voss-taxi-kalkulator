@@ -873,52 +873,79 @@ body::before {
   .print-offer {
     display: block !important;
     font-family: 'Times New Roman', Times, serif;
+    font-size: 10pt;
   }
 
   .offer-header {
-    text-align: center;
-    border-bottom: 3px solid #333;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   .offer-logo-img {
-    max-width: 200px;
-    max-height: 80px;
-    margin-bottom: 10px;
+    max-width: 120px;
+    max-height: 50px;
+    object-fit: contain;
   }
 
   .offer-logo {
-    font-size: 28pt;
+    font-size: 20pt;
     font-weight: bold;
     color: #1a1a2e;
-    margin-bottom: 5px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .offer-date-header {
+    font-size: 9pt;
+    color: #666;
+    text-align: right;
   }
 
   .offer-title {
-    font-size: 18pt;
+    font-size: 14pt;
     font-weight: bold;
-    letter-spacing: 3px;
-    margin-top: 10px;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .offer-main-content {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+  }
+
+  .offer-left-section {
+    flex: 1;
+  }
+
+  .offer-right-section {
+    width: 250px;
+    flex-shrink: 0;
   }
 
   .offer-tariff-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
-    font-size: 10pt;
+    margin-top: 8px;
+    font-size: 8pt;
   }
 
   .offer-tariff-table th,
   .offer-tariff-table td {
     border: 1px solid #333;
-    padding: 8px;
+    padding: 4px 6px;
     text-align: center;
   }
 
   .offer-tariff-table th {
     background: #f0f0f0;
     font-weight: bold;
+    font-size: 8pt;
   }
 
   .offer-tariff-table td:first-child {
@@ -926,92 +953,89 @@ body::before {
     font-weight: 600;
   }
 
-  .offer-date {
-    text-align: right;
-    margin-bottom: 20px;
-    font-size: 11pt;
-  }
-
   .offer-section {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
   }
 
   .offer-section-title {
-    font-size: 14pt;
+    font-size: 11pt;
     font-weight: bold;
     border-bottom: 1px solid #666;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
   }
 
   .offer-route-box {
     background: #f5f5f5;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 3px;
   }
 
   .offer-route-item {
-    margin-bottom: 8px;
-    font-size: 12pt;
+    margin-bottom: 5px;
+    font-size: 10pt;
   }
 
   .offer-route-label {
     font-weight: bold;
     display: inline-block;
-    width: 60px;
+    width: 50px;
   }
 
   .offer-details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
   }
 
   .offer-detail-item {
-    padding: 8px 0;
+    padding: 5px 0;
     border-bottom: 1px dotted #ccc;
+    font-size: 10pt;
   }
 
   .offer-detail-label {
     font-weight: bold;
     color: #555;
+    font-size: 9pt;
   }
 
   .offer-price-box {
     background: #e8f4f8;
     border: 3px solid #2980b9;
-    padding: 25px;
+    padding: 20px;
     text-align: center;
-    margin: 30px 0;
+    border-radius: 5px;
+    height: fit-content;
   }
 
   .offer-price-label {
-    font-size: 14pt;
+    font-size: 11pt;
     font-weight: bold;
     color: #2980b9;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .offer-price-value {
-    font-size: 36pt;
+    font-size: 28pt;
     font-weight: bold;
     color: #1a5276;
   }
 
   .offer-breakdown {
-    margin-top: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   .offer-breakdown table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 9pt;
   }
 
   .offer-breakdown th,
   .offer-breakdown td {
-    padding: 8px 12px;
+    padding: 4px 8px;
     text-align: left;
     border: 1px solid #ddd;
   }
@@ -1029,42 +1053,43 @@ body::before {
   .offer-disclaimer {
     background: #fff3cd;
     border: 2px solid #ffc107;
-    padding: 20px;
-    margin-top: 30px;
+    padding: 10px;
+    margin-top: 10px;
   }
 
   .offer-disclaimer-title {
-    font-size: 14pt;
+    font-size: 10pt;
     font-weight: bold;
     color: #856404;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     text-transform: uppercase;
   }
 
   .offer-disclaimer-subtitle {
-    font-size: 12pt;
+    font-size: 9pt;
     font-weight: bold;
     color: #856404;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 
   .offer-disclaimer-text {
-    font-size: 11pt;
-    line-height: 1.6;
+    font-size: 8pt;
+    line-height: 1.4;
     color: #856404;
   }
 
   .offer-footer {
-    margin-top: 40px;
-    padding-top: 20px;
+    margin-top: 15px;
+    padding-top: 10px;
     border-top: 1px solid #ccc;
     text-align: center;
-    font-size: 10pt;
+    font-size: 8pt;
     color: #666;
   }
 
   @page {
-    margin: 2cm;
+    margin: 1.5cm;
+    size: A4;
   }
 }
 
