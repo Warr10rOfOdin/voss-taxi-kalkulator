@@ -58,7 +58,7 @@ export default function PrintOffer({
   return (
     <div className="print-offer" id="printOffer">
       <div className="offer-header">
-        <img src="/vosstaxi_logo_orange transparent.png" alt="Voss Taxi" className="offer-logo-img" />
+        <img src="/vosstaxi_logo_orange.png" alt="Voss Taxi" className="offer-logo-img" />
         <div className="offer-logo">Voss Taxi</div>
         <div className="offer-date-header">
           {translations.offerDate}: {dateStr}
