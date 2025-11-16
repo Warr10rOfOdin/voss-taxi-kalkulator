@@ -174,6 +174,14 @@ function App() {
     setDistanceKm(km.toFixed(2));
     setDurationMin(min);
   }, []);
+
+  // Handle place selection from autocomplete
+  const handlePlaceSelected = useCallback((place) => {
+    // Place was selected from autocomplete dropdown
+    // The route will automatically recalculate via MapDisplay's useEffect
+    // when both start and dest addresses are set
+    console.log('Place selected:', place?.formatted_address || place?.name);
+  }, []);
   
   // Handle print
   const handlePrint = () => {
@@ -217,6 +225,7 @@ function App() {
               value={startAddress}
               onChange={e => setStartAddress(e.target.value)}
               onKeyDown={handleStartAddressKeydown}
+              onPlaceSelected={handlePlaceSelected}
               placeholder="Hestavangen 11, Voss"
               apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             />
@@ -232,6 +241,7 @@ function App() {
               value={destAddress}
               onChange={e => setDestAddress(e.target.value)}
               onKeyDown={handleDestAddressKeydown}
+              onPlaceSelected={handlePlaceSelected}
               placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
               apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             />
@@ -256,6 +266,7 @@ function App() {
                     value={via}
                     onChange={e => updateViaPoint(index, e.target.value)}
                     onKeyDown={e => handleViaKeydown(e, index)}
+                    onPlaceSelected={handlePlaceSelected}
                     placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
                     apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
                   />
