@@ -185,15 +185,18 @@ function App() {
       {/* Top Card */}
       <div className="card top-card">
         <div className="header-row">
-          <h1>{t.appTitle}</h1>
+          <div className="logo-title-group">
+            <img src="/logo.png" alt="Voss Taxi" className="app-logo" onError={(e) => { e.target.src = '/taxi-icon.svg' }} />
+            <h1>{t.appTitle}</h1>
+          </div>
           <div className="lang-switcher">
-            <button 
+            <button
               className={`lang-btn ${lang === 'no' ? 'active' : ''}`}
               onClick={() => setLang('no')}
             >
               NO
             </button>
-            <button 
+            <button
               className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
               onClick={() => setLang('en')}
             >
