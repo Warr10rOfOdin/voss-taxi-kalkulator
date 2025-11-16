@@ -28,8 +28,8 @@ function App() {
   const [vehicleGroup, setVehicleGroup] = useState('1-4');
   
   // UI state
-  const [estimateEnabled, setEstimateEnabled] = useState(true);
   const [isTariffModalOpen, setIsTariffModalOpen] = useState(false);
+  const [routeTrigger, setRouteTrigger] = useState(0);
   
   // Tariff state
   const [baseTariff14, setBaseTariff14] = useState(DEFAULT_BASE_TARIFF_14);
@@ -68,7 +68,7 @@ function App() {
     if (mapCard && tariffCard) {
       let totalHeight = 0;
 
-      if (estimateCard && estimateEnabled) {
+      if (estimateCard) {
         totalHeight += estimateCard.offsetHeight + 20;
       }
 
@@ -77,13 +77,13 @@ function App() {
       const minHeight = 400;
       mapCard.style.height = Math.max(totalHeight, minHeight) + 'px';
     }
-  }, [estimateEnabled]);
+  }, []);
   
   // Sync map height on changes
   useEffect(() => {
     const timer = setTimeout(syncMapHeight, 100);
     return () => clearTimeout(timer);
-  }, [distanceKm, durationMin, estimateEnabled, viaAddresses, syncMapHeight]);
+  }, [distanceKm, durationMin, viaAddresses, syncMapHeight]);
   
   // Resize listener
   useEffect(() => {
@@ -163,10 +163,15 @@ function App() {
     setDistanceKm('');
     setDurationMin('');
     setVehicleGroup('1-4');
-    
+
     const today = new Date();
     setTripDate(today.toISOString().split('T')[0]);
     setTripTime(today.toTimeString().slice(0, 5));
+  };
+
+  // Trigger route calculation manually
+  const triggerRouteCalculation = () => {
+    setRouteTrigger(prev => prev + 1);
   };
   
   // Handle route calculation from Google Maps
@@ -246,7 +251,7 @@ function App() {
               apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
             />
           </div>
-          <button className="btn btn-primary top-fetch-btn">
+          <button className="btn btn-primary top-fetch-btn" onClick={triggerRouteCalculation}>
             {t.fetchGoogle}
           </button>
         </div>
@@ -363,25 +368,17 @@ function App() {
           </div>
         </div>
         
-        {/* Row 3: Toggle, Empty, Print, Edit */}
+        {/* Row 3: Print, Edit, Empty */}
         <div className="control-row">
-          <label className="checkbox-inline">
-            <input
-              type="checkbox"
-              checked={estimateEnabled}
-              onChange={e => setEstimateEnabled(e.target.checked)}
-            />
-            <span>{t.showEstimate}</span>
-          </label>
           <div className="spacer"></div>
-          <button className="btn btn-outline" onClick={emptyAllFields}>
-            {t.emptyFields}
-          </button>
           <button className="btn btn-secondary" onClick={handlePrint}>
             {t.printPdf}
           </button>
           <button className="btn btn-outline" onClick={() => setIsTariffModalOpen(true)}>
             {t.editTariffs}
+          </button>
+          <button className="btn btn-outline" onClick={emptyAllFields}>
+            {t.emptyFields}
           </button>
         </div>
       </div>
@@ -391,7 +388,6 @@ function App() {
         {/* Left Column */}
         <div className="left-column">
           <EstimatedPriceCard
-            enabled={estimateEnabled}
             km={distanceKm}
             minutes={durationMin}
             startDate={tripDate}
@@ -424,6 +420,7 @@ function App() {
             destAddress={destAddress}
             viaAddresses={viaAddresses}
             onRouteCalculated={handleRouteCalculated}
+            routeTrigger={routeTrigger}
             translations={t}
           />
         </div>
