@@ -116,8 +116,8 @@ body::before {
 }
 
 .app-logo {
-  width: 56px;
-  height: 56px;
+  width: 120px;
+  height: 60px;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
   transition: transform 0.3s ease;
