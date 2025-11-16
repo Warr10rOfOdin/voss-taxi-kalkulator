@@ -16,13 +16,13 @@ function App() {
   const t = translations[lang];
   
   // Address state
-  const [startAddress, setStartAddress] = useState('Hestavangen 11, Voss');
+  const [startAddress, setStartAddress] = useState('');
   const [destAddress, setDestAddress] = useState('');
   const [viaAddresses, setViaAddresses] = useState([]);
-  
+
   // Trip parameters
-  const [distanceKm, setDistanceKm] = useState(100);
-  const [durationMin, setDurationMin] = useState(90);
+  const [distanceKm, setDistanceKm] = useState('');
+  const [durationMin, setDurationMin] = useState('');
   const [tripDate, setTripDate] = useState('');
   const [tripTime, setTripTime] = useState('10:00');
   const [vehicleGroup, setVehicleGroup] = useState('1-4');
@@ -194,7 +194,7 @@ function App() {
       <div className="card top-card">
         <div className="header-row">
           <div className="logo-title-group">
-            <img src="/logo.png" alt="Voss Taxi" className="app-logo" onError={(e) => { e.target.src = '/taxi-icon.svg' }} />
+            <img src="/vosstaxi_logo_orange.png" alt="Voss Taxi" className="app-logo" />
             <h1>{t.appTitle}</h1>
           </div>
           <div className="lang-switcher">
