@@ -1,6 +1,10 @@
-import { 
-  calculateTimelineEstimate, 
-  getTariffTypeAt 
+import {
+  calculateTimelineEstimate,
+  getTariffTypeAt,
+  deriveAllTariffs,
+  buildPriceMatrix,
+  GROUP_KEYS,
+  PERIOD_KEYS
 } from '../utils/tariffCalculator';
 
 export default function PrintOffer({
@@ -46,11 +50,16 @@ export default function PrintOffer({
   
   const totalMinutes = segments.reduce((sum, s) => sum + s.minutes, 0);
   const totalKm = segments.reduce((sum, s) => sum + s.km, 0);
-  
+
+  // Generate full tariff matrix for price table
+  const tariffs = deriveAllTariffs(baseTariff14);
+  const priceMatrix = buildPriceMatrix({ km, minutes, tariffs });
+
   return (
     <div className="print-offer" id="printOffer">
       <div className="offer-header">
-        <div className="offer-logo">🚕 Voss Taxi</div>
+        <img src="/logo.png" alt="Voss Taxi" className="offer-logo-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.style.display = 'block'; }} />
+        <div className="offer-logo" style={{display: 'none'}}>🚕 Voss Taxi</div>
         <div className="offer-title">{translations.offerTitle}</div>
       </div>
 
@@ -137,6 +146,34 @@ export default function PrintOffer({
           </table>
         </div>
       )}
+
+      {/* Full Tariff Price Table */}
+      <div className="offer-section" style={{ pageBreakBefore: 'avoid', marginTop: '30px' }}>
+        <div className="offer-section-title">{translations.tariffTableTitle}</div>
+        <table className="offer-tariff-table">
+          <thead>
+            <tr>
+              <th></th>
+              {PERIOD_KEYS.map(period => (
+                <th key={period}>{translations.periodLabels[period]}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {GROUP_KEYS.map(group => (
+              <tr key={group}>
+                <td>{translations.groupLabels[group]}</td>
+                {PERIOD_KEYS.map(period => (
+                  <td key={period}>kr {priceMatrix[group][period].toLocaleString('nb-NO')}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div style={{ fontSize: '9pt', marginTop: '10px', color: '#666' }}>
+          {translations.notesPeriod}
+        </div>
+      </div>
 
       <div className="offer-disclaimer">
         <div className="offer-disclaimer-title">⚠️ {translations.offerImportant}</div>
