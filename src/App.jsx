@@ -16,7 +16,7 @@ function App() {
   const t = translations[lang];
   
   // Address state
-  const [startAddress, setStartAddress] = useState('');
+  const [startAddress, setStartAddress] = useState('Hestavangen 11, Voss');
   const [destAddress, setDestAddress] = useState('');
   const [viaAddresses, setViaAddresses] = useState([]);
 
@@ -157,7 +157,7 @@ function App() {
   
   // Empty all fields
   const emptyAllFields = () => {
-    setStartAddress('');
+    setStartAddress('Hestavangen 11, Voss');
     setDestAddress('');
     setViaAddresses([]);
     setDistanceKm('');
@@ -369,17 +369,19 @@ function App() {
         </div>
         
         {/* Row 3: Print, Edit, Empty */}
-        <div className="control-row">
+        <div className="control-row button-row">
           <div className="spacer"></div>
-          <button className="btn btn-secondary" onClick={handlePrint}>
-            {t.printPdf}
-          </button>
-          <button className="btn btn-outline" onClick={() => setIsTariffModalOpen(true)}>
-            {t.editTariffs}
-          </button>
-          <button className="btn btn-outline" onClick={emptyAllFields}>
-            {t.emptyFields}
-          </button>
+          <div className="button-group">
+            <button className="btn btn-secondary" onClick={handlePrint}>
+              {t.printPdf}
+            </button>
+            <button className="btn btn-outline" onClick={() => setIsTariffModalOpen(true)}>
+              {t.editTariffs}
+            </button>
+            <button className="btn btn-outline" onClick={emptyAllFields}>
+              {t.emptyFields}
+            </button>
+          </div>
         </div>
       </div>
 
