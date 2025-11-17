@@ -5,7 +5,6 @@ import {
 } from '../utils/tariffCalculator';
 
 export default function EstimatedPriceCard({
-  enabled,
   km,
   minutes,
   startDate,
@@ -16,10 +15,6 @@ export default function EstimatedPriceCard({
   translations,
   lang
 }) {
-  if (!enabled) {
-    return null;
-  }
-  
   const distanceKm = Math.max(0, Number(km) || 0);
   const durationMin = Math.max(0, Number(minutes) || 0);
   

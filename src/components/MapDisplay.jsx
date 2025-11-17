@@ -8,6 +8,7 @@ export default function MapDisplay({
   destAddress,
   viaAddresses = [],
   onRouteCalculated,
+  routeTrigger,
   translations
 }) {
   const mapContainerRef = useRef(null);
@@ -117,7 +118,7 @@ export default function MapDisplay({
         directionsRendererRef.current.setDirections({ routes: [] });
       }
     });
-  }, [mapLoaded, startAddress, destAddress, viaAddresses, onRouteCalculated]);
+  }, [mapLoaded, startAddress, destAddress, viaAddresses, onRouteCalculated, routeTrigger]);
   
   return (
     <div className="card map-card" id="mapCard">

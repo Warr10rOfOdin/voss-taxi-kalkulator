@@ -536,23 +536,6 @@ body::before {
     0 8px 32px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(16, 185, 129, 0.15),
     inset 0 1px 0 rgba(16, 185, 129, 0.2);
-  animation: pulseGlow 3s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(16, 185, 129, 0.15),
-      inset 0 1px 0 rgba(16, 185, 129, 0.2);
-  }
-  50% {
-    box-shadow:
-      0 8px 40px rgba(16, 185, 129, 0.2),
-      0 0 20px rgba(16, 185, 129, 0.15),
-      0 0 0 1px rgba(16, 185, 129, 0.25),
-      inset 0 1px 0 rgba(16, 185, 129, 0.25);
-  }
 }
 
 .estimate-price-label {
