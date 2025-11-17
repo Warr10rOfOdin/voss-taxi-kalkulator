@@ -1,0 +1,24 @@
+{
+  "name": "Voss Taxi Kalkulator",
+  "short_name": "Voss Taxi",
+  "description": "Prisestimat for taxiturer i Voss-regionen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1419",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/vosstaxi_logo_orange.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
