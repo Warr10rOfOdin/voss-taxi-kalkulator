@@ -250,7 +250,7 @@ body::before {
 
 .help-tooltip {
   position: absolute;
-  bottom: 100%;
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   background: #2a2a4a;
@@ -260,7 +260,7 @@ body::before {
   font-size: 0.8rem;
   white-space: nowrap;
   z-index: 100;
-  margin-bottom: 8px;
+  margin-top: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   max-width: 250px;
   white-space: normal;
@@ -270,11 +270,11 @@ body::before {
 .help-tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: #2a2a4a;
+  border-bottom-color: #2a2a4a;
 }
 
 /* Glassmorphic Inputs */
@@ -320,6 +320,16 @@ body::before {
 
 .spacer {
   flex: 1;
+}
+
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.button-row {
+  grid-template-columns: 1fr auto;
 }
 
 /* Modern Glassmorphic Buttons */
