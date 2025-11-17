@@ -103,15 +103,23 @@ export function buildPriceMatrix({ km, minutes, tariffs }) {
 export function getTariffTypeAt(date, holidays = []) {
   const day = date.getDay(); // 0 = Sunday, 1 = Monday, ... 6 = Saturday
   const hour = date.getHours();
-  
+  const month = date.getMonth(); // 0 = January, 11 = December
+  const dayOfMonth = date.getDate();
+
   // Check if it's a holiday
-  const isHoliday = holidays.some(h => 
+  const isHoliday = holidays.some(h =>
     h.getFullYear() === date.getFullYear() &&
     h.getMonth() === date.getMonth() &&
     h.getDate() === date.getDate()
   );
-  
+
   if (isHoliday) return "hoytid";
+
+  // Special case: Christmas Eve (24.12) after 15:00 is høytid
+  if (month === 11 && dayOfMonth === 24 && hour >= 15) return "hoytid";
+
+  // Special case: New Year's Eve (31.12) after 15:00 is høytid
+  if (month === 11 && dayOfMonth === 31 && hour >= 15) return "hoytid";
   
   // Night applies to all days (00:00 - 06:00)
   if (hour < 6) return "helgNatt";

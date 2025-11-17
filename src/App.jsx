@@ -368,15 +368,12 @@ function App() {
           </div>
         </div>
         
-        {/* Row 3: Print, Edit, Empty */}
+        {/* Row 3: Print, Empty */}
         <div className="control-row button-row">
           <div className="spacer"></div>
           <div className="button-group">
             <button className="btn btn-secondary" onClick={handlePrint}>
               {t.printPdf}
-            </button>
-            <button className="btn btn-outline" onClick={() => setIsTariffModalOpen(true)}>
-              {t.editTariffs}
             </button>
             <button className="btn btn-outline" onClick={emptyAllFields}>
               {t.emptyFields}
@@ -452,6 +449,18 @@ function App() {
         onSave={setBaseTariff14}
         translations={t}
       />
+
+      {/* Floating Hamburger Menu Button (Bottom Right) */}
+      <button
+        className="hamburger-menu-btn"
+        onClick={() => setIsTariffModalOpen(true)}
+        aria-label={t.editTariffs}
+        title={t.editTariffs}
+      >
+        <span className="hamburger-line"></span>
+        <span className="hamburger-line"></span>
+        <span className="hamburger-line"></span>
+      </button>
     </div>
   );
 }
