@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  normaliseBaseTariff14, 
-  deriveAllTariffs, 
+import {
+  normaliseBaseTariff14,
+  deriveAllTariffs,
   buildPriceMatrix,
   GROUP_KEYS,
   PERIOD_KEYS
 } from '../utils/tariffCalculator';
+import { saveTariffToFirebase } from '../firebase';
 
 const DEFAULT_PASSWORD = import.meta.env.VITE_TARIFF_PASSWORD || 'Hestavangen11';
 
@@ -89,14 +90,23 @@ export default function TariffEditorModal({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const cleaned = normaliseBaseTariff14(currentBase);
 
-    // Save to localStorage for persistence
+    // Save to localStorage for offline fallback
     try {
       localStorage.setItem('vossTaxiTariffs', JSON.stringify(cleaned));
     } catch (error) {
       console.error('Failed to save tariffs to localStorage:', error);
+    }
+
+    // Save to Firebase for cross-device sync
+    try {
+      await saveTariffToFirebase(cleaned);
+      alert(translations.firebaseSaveSuccess || 'Takster lagret! Endringene synkroniseres til alle enheter.');
+    } catch (error) {
+      console.error('Failed to save tariffs to Firebase:', error);
+      alert(translations.firebaseSaveError || 'Kunne ikke lagre til Firebase. Endringer er lagret lokalt.');
     }
 
     onSave(cleaned);
