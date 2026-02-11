@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { 
-  normaliseBaseTariff14, 
-  deriveAllTariffs, 
+import {
+  normaliseBaseTariff14,
+  deriveAllTariffs,
   buildPriceMatrix,
   GROUP_KEYS,
   PERIOD_KEYS
 } from '../utils/tariffCalculator';
+import { saveTariffToFirebase } from '../firebase';
 
 const DEFAULT_PASSWORD = import.meta.env.VITE_TARIFF_PASSWORD || 'Hestavangen11';
 
@@ -89,18 +90,45 @@ export default function TariffEditorModal({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const cleaned = normaliseBaseTariff14(currentBase);
 
-    // Save to localStorage for persistence
+    // Save to localStorage for offline fallback
     try {
       localStorage.setItem('vossTaxiTariffs', JSON.stringify(cleaned));
     } catch (error) {
       console.error('Failed to save tariffs to localStorage:', error);
     }
 
+    // Save to Firebase for cross-device sync
+    try {
+      await saveTariffToFirebase(cleaned);
+      alert(translations.firebaseSaveSuccess || 'Takster lagret! Endringene synkroniseres til alle enheter.');
+    } catch (error) {
+      console.error('Failed to save tariffs to Firebase:', error);
+      alert(translations.firebaseSaveError || 'Kunne ikke lagre til Firebase. Endringer er lagret lokalt.');
+    }
+
     onSave(cleaned);
     onClose();
+  };
+
+  const handleCopyCode = () => {
+    const cleaned = normaliseBaseTariff14(currentBase);
+    const codeString = `export const DEFAULT_BASE_TARIFF_14 = {
+  start: ${cleaned.start},
+  km0_10: ${cleaned.km0_10},
+  kmOver10: ${cleaned.kmOver10},
+  min: ${cleaned.min},
+};`;
+
+    navigator.clipboard.writeText(codeString).then(() => {
+      alert(translations.codeCopied || 'Kode kopiert! Lim dette inn i src/utils/tariffCalculator.js for å gjøre endringene permanente på tvers av alle enheter.');
+    }).catch(err => {
+      console.error('Failed to copy code:', err);
+      // Fallback: show the code in an alert
+      alert(codeString);
+    });
   };
 
   return (
@@ -250,9 +278,16 @@ export default function TariffEditorModal({
           </table>
         </div>
 
+        <div style={{ marginTop: '20px', padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+          <strong>{translations.crossDeviceNote || 'Merk:'}</strong> {translations.crossDeviceHelp || 'Endringer lagres kun på denne enheten. For å gjøre endringer permanente på tvers av alle enheter, klikk "Kopier kode" og lim inn i src/utils/tariffCalculator.js i kildekoden.'}
+        </div>
+
         <div className="modal-actions">
           <button className="btn btn-outline" onClick={onClose}>
             {translations.cancel}
+          </button>
+          <button className="btn btn-secondary" onClick={handleCopyCode} style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+            {translations.copyCode || 'Kopier kode'}
           </button>
           <button className="btn btn-primary" onClick={handleSave}>
             {translations.saveTariffs}

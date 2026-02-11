@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { translations } from './locales/translations';
 import { DEFAULT_BASE_TARIFF_14 } from './utils/tariffCalculator';
 import { getNorwegianHolidays } from './utils/helligdager';
+import { getTariffFromFirebase, subscribeTariffChanges } from './firebase';
 import HelpTooltip from './components/HelpTooltip';
 import EstimatedPriceCard from './components/EstimatedPriceCard';
 import TariffTable from './components/TariffTable';
@@ -31,19 +32,58 @@ function App() {
   const [isTariffModalOpen, setIsTariffModalOpen] = useState(false);
   const [routeTrigger, setRouteTrigger] = useState(0);
   
-  // Tariff state - load from localStorage if available
-  const [baseTariff14, setBaseTariff14] = useState(() => {
-    try {
-      const saved = localStorage.getItem('vossTaxiTariffs');
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (error) {
-      console.error('Failed to load tariffs from localStorage:', error);
-    }
-    return DEFAULT_BASE_TARIFF_14;
-  });
+  // Tariff state - load from Firebase, fallback to localStorage, then default
+  const [baseTariff14, setBaseTariff14] = useState(DEFAULT_BASE_TARIFF_14);
   const [holidays] = useState(() => getNorwegianHolidays());
+
+  // Load tariffs from Firebase on mount
+  useEffect(() => {
+    const loadTariffs = async () => {
+      try {
+        // Try Firebase first
+        const firebaseTariff = await getTariffFromFirebase();
+        if (firebaseTariff) {
+          console.log('Loaded tariffs from Firebase');
+          setBaseTariff14(firebaseTariff);
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to load tariffs from Firebase:', error);
+      }
+
+      // Fallback to localStorage
+      try {
+        const saved = localStorage.getItem('vossTaxiTariffs');
+        if (saved) {
+          console.log('Loaded tariffs from localStorage');
+          setBaseTariff14(JSON.parse(saved));
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to load tariffs from localStorage:', error);
+      }
+
+      // Use default if nothing found
+      console.log('Using default tariffs');
+    };
+
+    loadTariffs();
+
+    // Subscribe to real-time Firebase updates
+    const unsubscribe = subscribeTariffChanges((newTariff) => {
+      console.log('Tariff updated in real-time from Firebase');
+      setBaseTariff14(newTariff);
+      // Also update localStorage as backup
+      try {
+        localStorage.setItem('vossTaxiTariffs', JSON.stringify(newTariff));
+      } catch (error) {
+        console.error('Failed to update localStorage:', error);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
   
   // Refs for keyboard navigation
   const destAddressRef = useRef(null);
