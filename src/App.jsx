@@ -93,11 +93,13 @@ function App() {
   const viaInputRefs = useRef([]);
   const mapCardRef = useRef(null);
   
-  // Initialize date to today
+  // Initialize date and time to current
   useEffect(() => {
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.toTimeString().slice(0, 5); // HH:MM format
     setTripDate(dateStr);
+    setTripTime(timeStr);
   }, []);
   
   // Sync map height with left column (desktop only)
