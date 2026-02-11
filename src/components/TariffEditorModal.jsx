@@ -103,6 +103,24 @@ export default function TariffEditorModal({
     onClose();
   };
 
+  const handleCopyCode = () => {
+    const cleaned = normaliseBaseTariff14(currentBase);
+    const codeString = `export const DEFAULT_BASE_TARIFF_14 = {
+  start: ${cleaned.start},
+  km0_10: ${cleaned.km0_10},
+  kmOver10: ${cleaned.kmOver10},
+  min: ${cleaned.min},
+};`;
+
+    navigator.clipboard.writeText(codeString).then(() => {
+      alert(translations.codeCopied || 'Kode kopiert! Lim dette inn i src/utils/tariffCalculator.js for å gjøre endringene permanente på tvers av alle enheter.');
+    }).catch(err => {
+      console.error('Failed to copy code:', err);
+      // Fallback: show the code in an alert
+      alert(codeString);
+    });
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={e => e.stopPropagation()}>
@@ -250,9 +268,16 @@ export default function TariffEditorModal({
           </table>
         </div>
 
+        <div style={{ marginTop: '20px', padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+          <strong>{translations.crossDeviceNote || 'Merk:'}</strong> {translations.crossDeviceHelp || 'Endringer lagres kun på denne enheten. For å gjøre endringer permanente på tvers av alle enheter, klikk "Kopier kode" og lim inn i src/utils/tariffCalculator.js i kildekoden.'}
+        </div>
+
         <div className="modal-actions">
           <button className="btn btn-outline" onClick={onClose}>
             {translations.cancel}
+          </button>
+          <button className="btn btn-secondary" onClick={handleCopyCode} style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+            {translations.copyCode || 'Kopier kode'}
           </button>
           <button className="btn btn-primary" onClick={handleSave}>
             {translations.saveTariffs}

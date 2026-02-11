@@ -13,6 +13,7 @@ export default function AddressAutocomplete({
   const autocompleteRef = useRef(null);
   const internalInputRef = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     // Wait for Google Maps API to be available
@@ -50,6 +51,7 @@ export default function AddressAutocomplete({
       // Listen for place selection
       autocompleteRef.current.addListener('place_changed', () => {
         const place = autocompleteRef.current.getPlace();
+        setDropdownOpen(false); // Dropdown closes when selection is made
         let selectedAddress = '';
 
         if (place && place.formatted_address) {
@@ -127,14 +129,47 @@ export default function AddressAutocomplete({
     }
   }, [inputRef]);
 
+  // Handle keydown to detect dropdown navigation
+  const handleKeyDown = (e) => {
+    // Track if dropdown is being navigated with arrow keys
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      setDropdownOpen(true);
+    } else if (e.key === 'Escape') {
+      setDropdownOpen(false);
+    } else if (e.key === 'Enter') {
+      // If dropdown is open and user navigated with arrows, let Google handle it
+      if (dropdownOpen) {
+        // Don't prevent default - let Google Places autocomplete handle the selection
+        // The place_changed event will fire and close the dropdown
+        return;
+      }
+    }
+
+    // Call parent's onKeyDown handler
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  };
+
+  // Track input changes to detect when dropdown might open
+  const handleInputChange = (e) => {
+    // If user is typing, dropdown will open with suggestions
+    if (e.target.value.length > 0) {
+      setDropdownOpen(true);
+    } else {
+      setDropdownOpen(false);
+    }
+    onChange(e);
+  };
+
   return (
     <input
       type="text"
       id={id}
       ref={internalInputRef}
       value={value}
-      onChange={onChange}
-      onKeyDown={onKeyDown}
+      onChange={handleInputChange}
+      onKeyDown={handleKeyDown}
       placeholder={placeholder}
       autoComplete="off"
     />
