@@ -63,19 +63,24 @@ export default function MapDisplay({
     };
   }, []);
   
-  // Update route when addresses change
+  // Update route only when explicitly triggered (not on every address change)
   useEffect(() => {
+    // Only proceed if routeTrigger > 0 (explicit trigger) or if it's the initial state
+    if (routeTrigger === 0) {
+      return;
+    }
+
     if (!mapLoaded || !mapInstanceRef.current || !directionsRendererRef.current) {
       return;
     }
-    
+
     if (!startAddress || !destAddress) {
       directionsRendererRef.current.setDirections({ routes: [] });
       return;
     }
-    
+
     const directionsService = new window.google.maps.DirectionsService();
-    
+
     // Build waypoints from via addresses
     const waypoints = viaAddresses
       .filter(addr => addr && addr.trim() !== '')
@@ -83,7 +88,7 @@ export default function MapDisplay({
         location: addr,
         stopover: true
       }));
-    
+
     const request = {
       origin: startAddress,
       destination: destAddress,
@@ -92,24 +97,24 @@ export default function MapDisplay({
       unitSystem: window.google.maps.UnitSystem.METRIC,
       optimizeWaypoints: false
     };
-    
+
     directionsService.route(request, (result, status) => {
       if (status === window.google.maps.DirectionsStatus.OK) {
         directionsRendererRef.current.setDirections(result);
-        
+
         // Calculate total distance and duration
         let totalDistance = 0;
         let totalDuration = 0;
-        
+
         const route = result.routes[0];
         for (const leg of route.legs) {
           totalDistance += leg.distance.value; // meters
           totalDuration += leg.duration.value; // seconds
         }
-        
+
         const distanceKm = totalDistance / 1000;
         const durationMin = Math.round(totalDuration / 60);
-        
+
         if (onRouteCalculated) {
           onRouteCalculated(distanceKm, durationMin);
         }
@@ -118,7 +123,7 @@ export default function MapDisplay({
         directionsRendererRef.current.setDirections({ routes: [] });
       }
     });
-  }, [mapLoaded, startAddress, destAddress, viaAddresses, onRouteCalculated, routeTrigger]);
+  }, [mapLoaded, routeTrigger]);
   
   return (
     <div className="card map-card" id="mapCard">
