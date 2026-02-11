@@ -134,18 +134,22 @@ export default function AddressAutocomplete({
     // Track if dropdown is being navigated with arrow keys
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       setDropdownOpen(true);
+      // Don't call parent handler for arrow keys - let Google handle navigation
+      return;
     } else if (e.key === 'Escape') {
       setDropdownOpen(false);
     } else if (e.key === 'Enter') {
       // If dropdown is open and user navigated with arrows, let Google handle it
       if (dropdownOpen) {
+        // Stop event from bubbling up to prevent parent's preventDefault()
+        e.stopPropagation();
         // Don't prevent default - let Google Places autocomplete handle the selection
         // The place_changed event will fire and close the dropdown
         return;
       }
     }
 
-    // Call parent's onKeyDown handler
+    // Call parent's onKeyDown handler for other keys
     if (onKeyDown) {
       onKeyDown(e);
     }
