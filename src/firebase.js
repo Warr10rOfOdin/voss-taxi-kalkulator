@@ -1,24 +1,14 @@
 // Firebase configuration and initialization
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, onValue } from 'firebase/database';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc",
-  authDomain: "voss-taxi-e788d.firebaseapp.com",
-  projectId: "voss-taxi-e788d",
-  storageBucket: "voss-taxi-e788d.firebasestorage.app",
-  messagingSenderId: "331073037525",
-  appId: "1:331073037525:web:21b25be31baec8a7f6ae5c",
-  measurementId: "G-Z0MGVKCR3R",
-  databaseURL: "https://voss-taxi-e788d-default-rtdb.europe-west1.firebasedatabase.app"
-};
+import { firebaseConfig, DATABASE_PATHS } from './config/firebase.config';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 // Tariff database reference
-const TARIFFS_PATH = 'tariffs/base14';
+const TARIFFS_PATH = DATABASE_PATHS.TARIFFS_BASE14;
 
 /**
  * Save tariff to Firebase
