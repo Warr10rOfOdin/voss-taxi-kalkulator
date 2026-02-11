@@ -31,8 +31,18 @@ function App() {
   const [isTariffModalOpen, setIsTariffModalOpen] = useState(false);
   const [routeTrigger, setRouteTrigger] = useState(0);
   
-  // Tariff state
-  const [baseTariff14, setBaseTariff14] = useState(DEFAULT_BASE_TARIFF_14);
+  // Tariff state - load from localStorage if available
+  const [baseTariff14, setBaseTariff14] = useState(() => {
+    try {
+      const saved = localStorage.getItem('vossTaxiTariffs');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Failed to load tariffs from localStorage:', error);
+    }
+    return DEFAULT_BASE_TARIFF_14;
+  });
   const [holidays] = useState(() => getNorwegianHolidays());
   
   // Refs for keyboard navigation
@@ -95,6 +105,8 @@ function App() {
   const handleStartAddressKeydown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger route calculation when Enter is pressed
+      triggerRouteCalculation();
       destAddressRef.current?.focus();
     }
   };
@@ -102,6 +114,8 @@ function App() {
   const handleDestAddressKeydown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger route calculation when Enter is pressed
+      triggerRouteCalculation();
       if (viaAddresses.length > 0 && viaInputRefs.current[0]) {
         viaInputRefs.current[0].focus();
       } else {
@@ -113,6 +127,8 @@ function App() {
   const handleViaKeydown = (e, index) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Trigger route calculation when Enter is pressed
+      triggerRouteCalculation();
       if (index < viaAddresses.length - 1 && viaInputRefs.current[index + 1]) {
         viaInputRefs.current[index + 1].focus();
       } else {
@@ -183,9 +199,12 @@ function App() {
   // Handle place selection from autocomplete
   const handlePlaceSelected = useCallback((place) => {
     // Place was selected from autocomplete dropdown
-    // The route will automatically recalculate via MapDisplay's useEffect
-    // when both start and dest addresses are set
+    // Trigger route calculation
     console.log('Place selected:', place?.formatted_address || place?.name);
+    // Trigger route calculation after a short delay to ensure state updates
+    setTimeout(() => {
+      setRouteTrigger(prev => prev + 1);
+    }, 100);
   }, []);
   
   // Handle print

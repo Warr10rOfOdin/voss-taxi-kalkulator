@@ -20,6 +20,7 @@ export default function TariffEditorModal({
   const [km0_10, setKm0_10] = useState(11.14);
   const [kmOver10, setKmOver10] = useState(21.23);
   const [minRate, setMinRate] = useState(8.42);
+  const [percentage, setPercentage] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -31,6 +32,7 @@ export default function TariffEditorModal({
       setKm0_10(normalized.km0_10);
       setKmOver10(normalized.kmOver10);
       setMinRate(normalized.min);
+      setPercentage(0);
     }
     // Reset authentication when modal is closed
     if (!isOpen) {
@@ -39,6 +41,29 @@ export default function TariffEditorModal({
       setPasswordError('');
     }
   }, [isOpen, initialBaseTariff14]);
+
+  // Handle percentage adjustment
+  const handlePercentageChange = (newPercentage) => {
+    const percentValue = parseFloat(newPercentage) || 0;
+    setPercentage(percentValue);
+
+    if (percentValue === 0) {
+      // Reset to original values
+      const normalized = normaliseBaseTariff14(initialBaseTariff14);
+      setStart(normalized.start);
+      setKm0_10(normalized.km0_10);
+      setKmOver10(normalized.kmOver10);
+      setMinRate(normalized.min);
+    } else {
+      // Apply percentage adjustment
+      const normalized = normaliseBaseTariff14(initialBaseTariff14);
+      const multiplier = 1 + (percentValue / 100);
+      setStart((normalized.start * multiplier).toFixed(2));
+      setKm0_10((normalized.km0_10 * multiplier).toFixed(2));
+      setKmOver10((normalized.kmOver10 * multiplier).toFixed(2));
+      setMinRate((normalized.min * multiplier).toFixed(2));
+    }
+  };
   
   if (!isOpen) {
     return null;
@@ -66,6 +91,14 @@ export default function TariffEditorModal({
 
   const handleSave = () => {
     const cleaned = normaliseBaseTariff14(currentBase);
+
+    // Save to localStorage for persistence
+    try {
+      localStorage.setItem('vossTaxiTariffs', JSON.stringify(cleaned));
+    } catch (error) {
+      console.error('Failed to save tariffs to localStorage:', error);
+    }
+
     onSave(cleaned);
     onClose();
   };
@@ -117,15 +150,38 @@ export default function TariffEditorModal({
         ) : (
           <>
             <div className="modal-title" style={{ display: 'none' }}>{translations.modalTitle}</div>
-        
+
+        {/* Percentage Adjuster */}
+        <div className="form-group" style={{ marginBottom: '20px', padding: '16px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '8px' }}>
+          <label htmlFor="percentageAdjust" style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '8px', display: 'block' }}>
+            {translations.percentageAdjust || 'Juster alle takster med prosent (%)'}
+          </label>
+          <input
+            type="number"
+            id="percentageAdjust"
+            step="0.1"
+            value={percentage}
+            onChange={e => handlePercentageChange(e.target.value)}
+            placeholder="0"
+            style={{
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}
+          />
+          <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)', marginTop: '8px' }}>
+            {translations.percentageHelp || 'Positivt tall øker prisen, negativt reduserer. 0 = original verdi'}
+          </div>
+        </div>
+
         <div className="modal-inputs">
           <div className="form-group">
             <label htmlFor="modalStart">{translations.modalStart}</label>
-            <input 
-              type="number" 
-              id="modalStart" 
-              min="0" 
-              step="0.01" 
+            <input
+              type="number"
+              id="modalStart"
+              min="0"
+              step="0.01"
               value={start}
               onChange={e => setStart(e.target.value)}
             />
