@@ -9,7 +9,7 @@
 
 ## ✅ Completed Steps
 
-- [x] **New Firebase app created** - App ID: `1:331073037525:web:675811ae4704227ff6ae5c`
+- [x] **New Firebase app created** - App ID ending in `...7ff6ae5c` (see .env file)
 - [x] **Code fixed** - Removed hardcoded credentials (commit `59ca635`)
 - [x] **Environment variables** - Updated code to use `import.meta.env.VITE_*`
 - [x] **.env file created** - New Firebase credentials added
@@ -49,20 +49,22 @@ Vercel still has the old Firebase credentials.
 2. Select your project: **voss-taxi-kalkulator**
 3. Navigate to: **Settings** → **Environment Variables**
 4. **Delete** all existing Firebase variables
-5. **Add** these new variables:
+5. **Add** new variables (copy values from your local `.env` file):
 
 ```
-VITE_FIREBASE_API_KEY = AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc
-VITE_FIREBASE_AUTH_DOMAIN = voss-taxi-e788d.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID = voss-taxi-e788d
-VITE_FIREBASE_STORAGE_BUCKET = voss-taxi-e788d.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID = 331073037525
-VITE_FIREBASE_APP_ID = 1:331073037525:web:675811ae4704227ff6ae5c
-VITE_FIREBASE_MEASUREMENT_ID = G-VJLBT17LY1
-VITE_FIREBASE_DATABASE_URL = https://voss-taxi-e788d-default-rtdb.europe-west1.firebasedatabase.app
+VITE_FIREBASE_API_KEY = (from .env file)
+VITE_FIREBASE_AUTH_DOMAIN = (from .env file)
+VITE_FIREBASE_PROJECT_ID = (from .env file)
+VITE_FIREBASE_STORAGE_BUCKET = (from .env file)
+VITE_FIREBASE_MESSAGING_SENDER_ID = (from .env file)
+VITE_FIREBASE_APP_ID = (from .env file)
+VITE_FIREBASE_MEASUREMENT_ID = (from .env file)
+VITE_FIREBASE_DATABASE_URL = (from .env file)
 VITE_GOOGLE_MAPS_API_KEY = (your Google Maps API key)
-VITE_TARIFF_PASSWORD = Hestavangen11
+VITE_TARIFF_PASSWORD = (from .env file)
 ```
+
+**Note**: Copy the actual values from your local `.env` file. Do NOT hardcode them here.
 
 6. **Redeploy** the application
 
@@ -105,8 +107,8 @@ rm -rf temp-repo
 # Download BFG
 wget https://repo1.maven.org/maven2/com/madgag/bfg/1.14.0/bfg-1.14.0.jar
 
-# Create file with the exposed secret
-echo "AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc" > secrets.txt
+# Create file with the exposed secret (replace with actual old key from commit 4aa2dc0)
+echo "YOUR_OLD_EXPOSED_API_KEY_HERE" > secrets.txt
 
 # Clone a fresh copy
 git clone --mirror https://github.com/Warr10rOfOdin/voss-taxi-kalkulator.git temp-repo.git
@@ -217,19 +219,19 @@ Prevent future incidents.
 ### Old (Exposed) Credentials
 ```javascript
 // Commit 4aa2dc0 - EXPOSED
-apiKey: "AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc"  // OLD - COMPROMISED
-appId: "1:331073037525:web:21b25be31baec8a7f6ae5c"   // OLD - DELETE
+apiKey: "AIza...xxxxx"              // OLD - COMPROMISED - DO NOT USE
+appId: "1:...web:...f6ae5c"         // OLD - DELETE THIS APP
 ```
 
 ### New (Secure) Credentials
 ```javascript
-// New Firebase app - SECURE
-apiKey: "AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc"  // Same key, new app
-appId: "1:331073037525:web:675811ae4704227ff6ae5c"   // NEW - Different appId
-measurementId: "G-VJLBT17LY1"                        // NEW
+// New Firebase app - SECURE (values in .env file)
+apiKey: "AIza...xxxxx"              // NEW - From new Firebase app
+appId: "1:...web:...7ff6ae5c"       // NEW - Different appId
+measurementId: "G-XXXXXXXXXX"       // NEW - See .env file
 ```
 
-**Note**: The API key appears the same, but it's associated with a **new app** (different appId). The old app should be deleted.
+**Note**: The new appId ends with `7ff6ae5c` (different from the old one). Check your `.env` file for actual values.
 
 ---
 
