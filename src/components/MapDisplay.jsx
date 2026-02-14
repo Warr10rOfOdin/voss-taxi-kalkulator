@@ -79,6 +79,9 @@ export default function MapDisplay({
       return;
     }
 
+    console.log(`[MapDisplay] Calculating route (trigger: ${routeTrigger})`);
+    console.log(`[MapDisplay] From: ${startAddress} → To: ${destAddress}`);
+
     const directionsService = new window.google.maps.DirectionsService();
 
     // Build waypoints from via addresses
@@ -88,6 +91,10 @@ export default function MapDisplay({
         location: addr,
         stopover: true
       }));
+
+    if (waypoints.length > 0) {
+      console.log(`[MapDisplay] Via points: ${waypoints.length}`);
+    }
 
     const request = {
       origin: startAddress,
@@ -115,11 +122,13 @@ export default function MapDisplay({
         const distanceKm = totalDistance / 1000;
         const durationMin = Math.round(totalDuration / 60);
 
+        console.log(`[MapDisplay] Route calculated: ${distanceKm.toFixed(2)} km, ${durationMin} min`);
+
         if (onRouteCalculated) {
           onRouteCalculated(distanceKm, durationMin);
         }
       } else {
-        console.error('Directions request failed:', status);
+        console.error(`[MapDisplay] Directions API request failed: ${status}`);
         directionsRendererRef.current.setDirections({ routes: [] });
       }
     });

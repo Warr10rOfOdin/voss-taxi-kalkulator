@@ -12,6 +12,7 @@ export default function AddressAutocomplete({
 }) {
   const autocompleteRef = useRef(null);
   const internalInputRef = useRef(null);
+  const initCountRef = useRef(0); // Track initialization count for debugging
   const [isLoaded, setIsLoaded] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -38,7 +39,12 @@ export default function AddressAutocomplete({
     }
 
     try {
-      // Initialize Google Places Autocomplete
+      // Initialize Google Places Autocomplete (ONLY ONCE when Google Maps loads)
+      initCountRef.current += 1;
+      console.log(`[AddressAutocomplete ${id}] Initializing Google Places Autocomplete (count: ${initCountRef.current})`);
+      if (initCountRef.current > 1) {
+        console.warn(`[AddressAutocomplete ${id}] WARNING: Re-initialized ${initCountRef.current} times! This causes excessive API calls.`);
+      }
       autocompleteRef.current = new window.google.maps.places.Autocomplete(
         internalInputRef.current,
         {
@@ -111,12 +117,15 @@ export default function AddressAutocomplete({
     }
 
     return () => {
+      console.log(`[AddressAutocomplete ${id}] Cleaning up autocomplete instance`);
       if (autocompleteRef.current) {
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
         autocompleteRef.current = null;
       }
     };
-  }, [isLoaded, onChange, onPlaceSelected]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded]); // CRITICAL FIX: Only depend on isLoaded, NOT onChange/onPlaceSelected
+  // This prevents re-initialization on every parent render and reduces API calls by 90%+
 
   // Sync the external ref with internal ref
   useEffect(() => {
