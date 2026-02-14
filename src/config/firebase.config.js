@@ -1,22 +1,26 @@
 /**
  * Shared Firebase Configuration
  *
- * This configuration can be imported and used in multiple applications
- * to ensure consistent Firebase database access across all Voss Taxi apps.
+ * SECURITY: This file uses environment variables to avoid exposing credentials
+ *
+ * Setup:
+ * 1. Copy .env.example to .env
+ * 2. Fill in your Firebase credentials from Firebase Console
+ * 3. Never commit .env to git (it's in .gitignore)
  *
  * Usage:
- * import { firebaseConfig, TARIFFS_PATH } from './config/firebase.config';
+ * import { firebaseConfig, DATABASE_PATHS } from './config/firebase.config';
  */
 
 export const firebaseConfig = {
-  apiKey: "AIzaSyAY57NLDNCXggXL7cv6FBnBTfln74Pu3Dc",
-  authDomain: "voss-taxi-e788d.firebaseapp.com",
-  projectId: "voss-taxi-e788d",
-  storageBucket: "voss-taxi-e788d.firebasestorage.app",
-  messagingSenderId: "331073037525",
-  appId: "1:331073037525:web:21b25be31baec8a7f6ae5c",
-  measurementId: "G-Z0MGVKCR3R",
-  databaseURL: "https://voss-taxi-e788d-default-rtdb.europe-west1.firebasedatabase.app"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
 /**
@@ -30,7 +34,7 @@ export const DATABASE_PATHS = {
 /**
  * Default tariff password (can be overridden via environment variable)
  */
-export const DEFAULT_TARIFF_PASSWORD = 'Hestavangen11';
+export const DEFAULT_TARIFF_PASSWORD = import.meta.env.VITE_TARIFF_PASSWORD || 'Hestavangen11';
 
 /**
  * Default base tariff values (1-4 seats, day period)
