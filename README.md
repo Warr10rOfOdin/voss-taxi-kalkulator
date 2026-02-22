@@ -1,15 +1,16 @@
 # Voss Taxi Kalkulator
 
-A web application for calculating and displaying taxi prices for Voss Taxi in Norway. Features include Google Maps route integration, multi-language support (Norwegian/English), and professional PDF price estimate generation.
+A white-label, multi-tenant web application for calculating and displaying taxi prices. Originally built for Voss Taxi in Norway, now configurable for any taxi company with custom branding, theming, and regional settings.
 
-![Voss Taxi Calculator](https://img.shields.io/badge/React-18.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4-purple) ![License](https://img.shields.io/badge/License-MIT-green)
+![Voss Taxi Calculator](https://img.shields.io/badge/React-18.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4-purple) ![License](https://img.shields.io/badge/License-MIT-green) ![Multi--Tenant](https://img.shields.io/badge/Multi--Tenant-SaaS-orange)
 
 ## Features
 
+### Core Calculator Features
 - 🗺️ **Google Maps Integration** - Automatic route calculation with distance and duration
 - 🔍 **Address Autocomplete** - Dropdown suggestions for addresses powered by Google Places API
 - 📍 **Via Points** - Add multiple intermediate stops to your route
-- 💰 **Real-time Price Calculation** - Based on official Voss Taxi tariffs
+- 💰 **Real-time Price Calculation** - Based on Norwegian taxi tariff regulations
 - 📊 **Tariff Breakdown** - See how price is distributed across different tariff periods
 - 🌐 **Bilingual Support** - Norwegian and English interface
 - 🖨️ **Professional PDF Export** - Generate official-looking price estimates
@@ -18,6 +19,18 @@ A web application for calculating and displaying taxi prices for Voss Taxi in No
 - 👥 **Vehicle Groups** - Support for 1-4, 5-6, 7-8, and 9-16 seat vehicles
 - ✏️ **Editable Tariffs** - Password-protected tariff editor
 - 📱 **Mobile Optimized** - Responsive design for all screen sizes
+
+### Multi-Tenant SaaS Features
+- 🏢 **White-Label Branding** - Custom logo, company name, colors, and page metadata per tenant
+- 🎨 **Themeable UI** - 60+ CSS variables for complete visual customization
+- 🌍 **Regional Configuration** - Tenant-specific map center, country, language, and default addresses
+- 🔐 **Data Isolation** - Tenant-scoped Firebase paths and localStorage keys
+- 🌐 **Custom Domains** - Support for custom domains and subdomains per tenant
+- 🛡️ **Embed Protection** - Domain validation and iframe security headers
+- 🚦 **Feature Flags** - Enable/disable features per tenant (language switcher, print, tariff editor, map, etc.)
+- 📊 **Multi-Tenant Analytics** - Separate data tracking per tenant
+
+**📖 See [TENANTS.md](./TENANTS.md) for complete multi-tenant configuration guide**
 
 ## Quick Start
 
@@ -82,24 +95,52 @@ The app will be live at `https://your-project.vercel.app`
 ```
 voss-taxi-kalkulator/
 ├── public/
-│   └── taxi-icon.svg          # Favicon
+│   ├── tenants/                     # Tenant-specific assets
+│   │   └── voss-taxi/
+│   │       ├── logo.png             # Tenant logo
+│   │       └── favicon.png          # Tenant favicon
+│   └── taxi-icon.svg
 ├── src/
-│   ├── components/
+│   ├── components/                  # React components
+│   │   ├── AddressAutocomplete.jsx
+│   │   ├── AddressInputSection.jsx
 │   │   ├── EstimatedPriceCard.jsx   # Price estimate with breakdown
 │   │   ├── HelpTooltip.jsx          # Help icons with tooltips
 │   │   ├── MapDisplay.jsx           # Google Maps integration
 │   │   ├── PrintOffer.jsx           # PDF/Print document
 │   │   ├── TariffEditorModal.jsx    # Edit base tariffs
-│   │   └── TariffTable.jsx          # 4x5 price grid
+│   │   ├── TariffTable.jsx          # 4x5 price grid
+│   │   └── TripParametersSection.jsx
+│   ├── config/                      # Multi-tenant configuration
+│   │   ├── firebase.config.js       # Firebase with tenant paths
+│   │   ├── tenantResolver.js        # Tenant detection logic
+│   │   └── tenantSchema.js          # Tenant config schema
+│   ├── context/
+│   │   └── TenantContext.jsx        # Tenant state provider
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useAddressInputs.js
+│   │   ├── useRouteCalculation.js
+│   │   ├── useTariffData.js         # Tenant-scoped tariff storage
+│   │   ├── useTripParameters.js
+│   │   └── index.js
 │   ├── locales/
-│   │   └── translations.js          # NO/EN translations
+│   │   └── translations.js          # NO/EN with template resolution
+│   ├── themes/                      # Theme system
+│   │   ├── themeDefaults.js         # 60+ CSS variables
+│   │   ├── vossTaxi.js              # Default dark theme
+│   │   ├── lightClean.js            # Light theme alternative
+│   │   └── index.js
 │   ├── utils/
+│   │   ├── helligdager.js           # Norwegian holidays calculator
 │   │   └── tariffCalculator.js      # Core pricing logic
-│   ├── App.css                      # All styles
+│   ├── App.css                      # CSS with variable references
 │   ├── App.jsx                      # Main application
 │   └── main.jsx                     # React entry point
+├── CLAUDE.md                        # AI assistant development guide
+├── TENANTS.md                       # Multi-tenant configuration guide
 ├── index.html
 ├── package.json
+├── vercel.json                      # Vercel config with security headers
 ├── vite.config.js
 └── README.md
 ```
@@ -150,6 +191,35 @@ Holidays are automatically calculated using the Computus algorithm for years 202
 - 9-16 seats: 2.0x
 
 **Note:** The minute rate only scales by period, not by vehicle group.
+
+## Multi-Tenant Setup
+
+This application supports serving multiple taxi companies from a single codebase. Each tenant gets custom branding, theming, and regional configuration.
+
+### Quick Start for New Tenants
+
+1. **Add tenant configuration** in `src/config/tenantResolver.js`
+2. **Upload tenant assets** to `public/tenants/{tenant-id}/`
+3. **Configure domain mapping** (optional for custom domains)
+4. **Test with** `?tenant={tenant-id}` query parameter
+
+**📖 Complete Guide:** See [TENANTS.md](./TENANTS.md) for detailed instructions on adding tenants, theme customization, feature flags, domain setup, and deployment.
+
+### Example: Access Different Tenants
+
+```bash
+# Default tenant (Voss Taxi)
+https://yourdomain.com
+
+# Via query parameter
+https://yourdomain.com/?tenant=bergen-taxi
+
+# Via subdomain
+https://bergen-taxi.yourdomain.com
+
+# Via custom domain
+https://bergentaxi.no
+```
 
 ## Configuration
 
