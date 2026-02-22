@@ -9,7 +9,10 @@ export default function MapDisplay({
   viaAddresses = [],
   onRouteCalculated,
   routeTrigger,
-  translations
+  translations,
+  lang = 'no',
+  mapCenter = { lat: 60.6280, lng: 6.4118 }, // Default to Voss, Norway
+  mapRegion = 'NO'
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -23,16 +26,14 @@ export default function MapDisplay({
       apiKey: GOOGLE_MAPS_API_KEY,
       version: 'weekly',
       libraries: ['places'],
-      language: 'no'
+      language: lang,
+      region: mapRegion
     });
-    
+
     loader.load().then(() => {
       if (mapContainerRef.current && !mapInstanceRef.current) {
-        // Default center on Voss, Norway
-        const vossCenter = { lat: 60.6280, lng: 6.4118 };
-        
         mapInstanceRef.current = new window.google.maps.Map(mapContainerRef.current, {
-          center: vossCenter,
+          center: mapCenter,
           zoom: 12,
           mapTypeControl: true,
           streetViewControl: false,
@@ -61,7 +62,7 @@ export default function MapDisplay({
         directionsRendererRef.current.setMap(null);
       }
     };
-  }, []);
+  }, [lang, mapCenter, mapRegion]); // Reinitialize if these change
   
   // Update route only when explicitly triggered (not on every address change)
   useEffect(() => {
