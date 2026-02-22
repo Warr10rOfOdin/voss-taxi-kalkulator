@@ -5,75 +5,121 @@
  *
  * Resolution order:
  *   1. Query parameter: ?tenant=voss-taxi (for testing/development)
- *   2. Custom domain mapping: vosstaksi.no → voss-taxi
+ *   2. Custom domain mapping via Firebase /domainMap/
  *   3. Subdomain mapping: voss-taxi.taxikalkulator.no → voss-taxi
  *   4. Fallback: default tenant (voss-taxi)
  *
- * In production, tenant configs are loaded from Firebase /tenantRegistry/
- * For now, a local registry is used.
+ * Tenant configs are loaded from Firebase /tenantRegistry/{tenantId}/config.
+ * Falls back to the local DEFAULT_TENANT if Firebase is unreachable.
  */
 
 import { createTenantConfig, DEFAULT_TENANT } from './tenantSchema';
+import { lookupTenantByDomain, getTenantConfig } from '../firebase';
 
 /**
- * Local tenant registry
- * Maps domain/subdomain patterns to tenant configs.
+ * Resolve tenant ID from the current URL (synchronous — just figures out the ID)
  *
- * In production, this should be loaded from Firebase:
- *   /tenantRegistry/{tenantId}/config
+ * @returns {{ tenantId: string, method: string }}
  */
-const LOCAL_TENANT_REGISTRY = {
-  'voss-taxi': DEFAULT_TENANT
-  // Add more tenants here:
-  // 'bergen-taxi': createTenantConfig({ id: 'bergen-taxi', name: 'Bergen Taxi', ... })
-};
-
-/**
- * Custom domain → tenant ID mapping
- * When a customer uses their own domain (e.g., vosstaksi.no),
- * this maps it to the correct tenant.
- */
-const DOMAIN_TO_TENANT = {
-  // 'vosstaksi.no': 'voss-taxi',
-  // 'www.vosstaksi.no': 'voss-taxi',
-  // 'bergentaxi.no': 'bergen-taxi',
-};
-
-/**
- * Resolve tenant from current URL
- * @returns {Object} Resolved tenant configuration
- */
-export function resolveTenant() {
+function resolveTenantId() {
   const hostname = window.location.hostname;
   const params = new URLSearchParams(window.location.search);
 
-  // 1. Query parameter override (for testing)
+  // 1. Query parameter override (for testing/development)
   const tenantParam = params.get('tenant');
-  if (tenantParam && LOCAL_TENANT_REGISTRY[tenantParam]) {
-    console.log(`[TenantResolver] Resolved via query param: ${tenantParam}`);
-    return createTenantConfig(LOCAL_TENANT_REGISTRY[tenantParam]);
+  if (tenantParam) {
+    return { tenantId: tenantParam, method: 'query param' };
   }
 
-  // 2. Custom domain mapping
-  const domainTenantId = DOMAIN_TO_TENANT[hostname];
-  if (domainTenantId && LOCAL_TENANT_REGISTRY[domainTenantId]) {
-    console.log(`[TenantResolver] Resolved via custom domain: ${hostname} → ${domainTenantId}`);
-    return createTenantConfig(LOCAL_TENANT_REGISTRY[domainTenantId]);
-  }
-
-  // 3. Subdomain mapping (e.g., voss-taxi.taxikalkulator.no)
+  // 2 & 3 handled async (domain map + subdomain) — return hostname for async resolution
+  // For subdomain: extract first part if hostname has 3+ segments
   const parts = hostname.split('.');
   if (parts.length >= 3) {
     const subdomain = parts[0];
-    if (LOCAL_TENANT_REGISTRY[subdomain]) {
-      console.log(`[TenantResolver] Resolved via subdomain: ${subdomain}`);
-      return createTenantConfig(LOCAL_TENANT_REGISTRY[subdomain]);
+    // Skip common non-tenant subdomains
+    if (subdomain !== 'www' && subdomain !== 'app') {
+      return { tenantId: subdomain, method: 'subdomain' };
     }
   }
 
-  // 4. Fallback to default tenant
-  console.log('[TenantResolver] Using default tenant (voss-taxi)');
-  return createTenantConfig(DEFAULT_TENANT);
+  // Will be resolved via domain map in the async step
+  return { tenantId: null, method: 'domain' };
+}
+
+/**
+ * Resolve tenant configuration asynchronously
+ *
+ * Tries Firebase first, falls back to local defaults.
+ * This is the main entry point used by TenantContext.
+ *
+ * @returns {Promise<Object>} Complete tenant configuration
+ */
+export async function resolveTenantAsync() {
+  const hostname = window.location.hostname;
+  const { tenantId: resolvedId, method } = resolveTenantId();
+
+  let tenantId = resolvedId;
+
+  // If no tenant ID from query param or subdomain, try domain map lookup
+  if (!tenantId) {
+    try {
+      const domainTenantId = await lookupTenantByDomain(hostname);
+      if (domainTenantId) {
+        tenantId = domainTenantId;
+        console.log(`[TenantResolver] Resolved via domain map: ${hostname} → ${tenantId}`);
+      }
+    } catch (error) {
+      console.warn('[TenantResolver] Domain map lookup failed:', error);
+    }
+  } else {
+    console.log(`[TenantResolver] Resolved via ${method}: ${tenantId}`);
+  }
+
+  // Fall back to default tenant if still nothing
+  if (!tenantId) {
+    tenantId = 'voss-taxi';
+    console.log('[TenantResolver] Using default tenant (voss-taxi)');
+  }
+
+  // Try to load full config from Firebase
+  try {
+    const firebaseConfig = await getTenantConfig(tenantId);
+    if (firebaseConfig) {
+      // Deep merge Firebase config with defaults (Firebase takes precedence)
+      const merged = createTenantConfig(firebaseConfig);
+      console.log(`[TenantResolver] Loaded config from Firebase for: ${tenantId}`);
+      return merged;
+    }
+  } catch (error) {
+    console.warn(`[TenantResolver] Firebase config fetch failed for ${tenantId}:`, error);
+  }
+
+  // Fallback: use local default config if this is the default tenant
+  if (tenantId === 'voss-taxi') {
+    console.log('[TenantResolver] Using local default config for voss-taxi');
+    return createTenantConfig(DEFAULT_TENANT);
+  }
+
+  // Unknown tenant with no Firebase config — use defaults with just the ID set
+  console.warn(`[TenantResolver] No config found for tenant "${tenantId}", using defaults`);
+  return createTenantConfig({ id: tenantId, name: tenantId });
+}
+
+/**
+ * Synchronous tenant resolver (legacy — used only if needed)
+ * Uses local defaults only. Prefer resolveTenantAsync() for Firebase integration.
+ *
+ * @returns {Object} Resolved tenant configuration from local defaults
+ */
+export function resolveTenant() {
+  const { tenantId } = resolveTenantId();
+
+  if (tenantId === 'voss-taxi' || !tenantId) {
+    return createTenantConfig(DEFAULT_TENANT);
+  }
+
+  // No local registry for other tenants — return defaults with the ID
+  return createTenantConfig({ id: tenantId, name: tenantId });
 }
 
 /**

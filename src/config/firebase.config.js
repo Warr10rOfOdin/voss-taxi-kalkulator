@@ -29,7 +29,9 @@ export const firebaseConfig = {
  */
 export const DATABASE_PATHS = {
   TARIFFS_BASE14: 'tariffs/base14',
-  TARIFFS_ALL: 'tariffs'
+  TARIFFS_ALL: 'tariffs',
+  TENANT_REGISTRY: 'tenantRegistry',
+  DOMAIN_MAP: 'domainMap'
 };
 
 /**
