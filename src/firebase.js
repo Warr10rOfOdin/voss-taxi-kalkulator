@@ -1,29 +1,40 @@
 // Firebase configuration and initialization
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, set, get, onValue } from 'firebase/database';
-import { firebaseConfig, DATABASE_PATHS } from './config/firebase.config';
+import { firebaseConfig, DATABASE_PATHS, getTenantPaths } from './config/firebase.config';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Tariff database reference
+// Default tariff database reference (backward compatible)
 const TARIFFS_PATH = DATABASE_PATHS.TARIFFS_BASE14;
+
+/**
+ * Get the tariff path for a given tenant
+ * @param {string} tenantId - Tenant ID (optional, defaults to voss-taxi)
+ * @returns {string} Database path for tariffs
+ */
+function getTariffPath(tenantId) {
+  return getTenantPaths(tenantId).TARIFFS_BASE14;
+}
 
 /**
  * Save tariff to Firebase
  * @param {Object} tariffData - The tariff data to save
+ * @param {string} tenantId - Optional tenant ID
  * @returns {Promise<void>}
  */
-export async function saveTariffToFirebase(tariffData) {
+export async function saveTariffToFirebase(tariffData, tenantId) {
   try {
-    const tariffRef = ref(database, TARIFFS_PATH);
+    const path = tenantId ? getTariffPath(tenantId) : TARIFFS_PATH;
+    const tariffRef = ref(database, path);
     await set(tariffRef, {
       ...tariffData,
       lastUpdated: Date.now(),
       version: 1
     });
-    console.log('Tariff saved to Firebase successfully');
+    console.log(`Tariff saved to Firebase (path: ${path})`);
   } catch (error) {
     console.error('Error saving tariff to Firebase:', error);
     throw error;
@@ -32,16 +43,18 @@ export async function saveTariffToFirebase(tariffData) {
 
 /**
  * Get tariff from Firebase (one-time read)
+ * @param {string} tenantId - Optional tenant ID
  * @returns {Promise<Object|null>} - The tariff data or null if not found
  */
-export async function getTariffFromFirebase() {
+export async function getTariffFromFirebase(tenantId) {
   try {
-    const tariffRef = ref(database, TARIFFS_PATH);
+    const path = tenantId ? getTariffPath(tenantId) : TARIFFS_PATH;
+    const tariffRef = ref(database, path);
     const snapshot = await get(tariffRef);
 
     if (snapshot.exists()) {
       const data = snapshot.val();
-      console.log('Tariff loaded from Firebase:', data);
+      console.log(`Tariff loaded from Firebase (path: ${path}):`, data);
       return {
         start: data.start,
         km0_10: data.km0_10,
@@ -49,7 +62,7 @@ export async function getTariffFromFirebase() {
         min: data.min
       };
     } else {
-      console.log('No tariff found in Firebase');
+      console.log(`No tariff found in Firebase (path: ${path})`);
       return null;
     }
   } catch (error) {
@@ -61,10 +74,12 @@ export async function getTariffFromFirebase() {
 /**
  * Subscribe to tariff changes in Firebase (real-time updates)
  * @param {Function} callback - Function to call when tariff changes
+ * @param {string} tenantId - Optional tenant ID
  * @returns {Function} - Unsubscribe function
  */
-export function subscribeTariffChanges(callback) {
-  const tariffRef = ref(database, TARIFFS_PATH);
+export function subscribeTariffChanges(callback, tenantId) {
+  const path = tenantId ? getTariffPath(tenantId) : TARIFFS_PATH;
+  const tariffRef = ref(database, path);
 
   const unsubscribe = onValue(tariffRef, (snapshot) => {
     if (snapshot.exists()) {
@@ -75,7 +90,7 @@ export function subscribeTariffChanges(callback) {
         kmOver10: data.kmOver10,
         min: data.min
       };
-      console.log('Tariff updated from Firebase:', tariff);
+      console.log(`Tariff updated from Firebase (path: ${path}):`, tariff);
       callback(tariff);
     }
   }, (error) => {

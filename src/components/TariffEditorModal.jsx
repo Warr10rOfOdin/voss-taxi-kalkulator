@@ -15,7 +15,8 @@ export default function TariffEditorModal({
   onClose,
   initialBaseTariff14,
   onSave,
-  translations
+  translations,
+  tenantId
 }) {
   const [start, setStart] = useState(97);
   const [km0_10, setKm0_10] = useState(11.14);
@@ -93,16 +94,17 @@ export default function TariffEditorModal({
   const handleSave = async () => {
     const cleaned = normaliseBaseTariff14(currentBase);
 
-    // Save to localStorage for offline fallback
+    // Save to localStorage for offline fallback (tenant-scoped key)
+    const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'vossTaxiTariffs';
     try {
-      localStorage.setItem('vossTaxiTariffs', JSON.stringify(cleaned));
+      localStorage.setItem(storageKey, JSON.stringify(cleaned));
     } catch (error) {
       console.error('Failed to save tariffs to localStorage:', error);
     }
 
-    // Save to Firebase for cross-device sync
+    // Save to Firebase for cross-device sync (tenant-scoped path)
     try {
-      await saveTariffToFirebase(cleaned);
+      await saveTariffToFirebase(cleaned, tenantId);
       alert(translations.firebaseSaveSuccess || 'Takster lagret! Endringene synkroniseres til alle enheter.');
     } catch (error) {
       console.error('Failed to save tariffs to Firebase:', error);

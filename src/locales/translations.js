@@ -1,6 +1,47 @@
+/**
+ * Replace {{placeholder}} tokens in a string with values from a context object
+ * @param {string} str - Template string
+ * @param {Object} ctx - Replacement values
+ * @returns {string} Resolved string
+ */
+export function resolveTemplate(str, ctx = {}) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/\{\{(\w+)\}\}/g, (_, key) => ctx[key] ?? `{{${key}}}`);
+}
+
+/**
+ * Create a proxy that auto-resolves template strings for a language
+ * @param {string} lang - Language code ('no' or 'en')
+ * @param {Object} tenantBranding - Tenant branding object with companyName etc.
+ * @returns {Object} Translation object with resolved templates
+ */
+export function getTranslations(lang, tenantBranding = {}) {
+  const base = translations[lang] || translations.no;
+  const ctx = {
+    companyName: tenantBranding.companyName || 'Taxi',
+    madeBy: tenantBranding.madeBy?.[lang] || tenantBranding.madeBy?.no || base.madeBy
+  };
+
+  // Deep-resolve templates in all string values
+  const resolved = {};
+  for (const [key, value] of Object.entries(base)) {
+    if (typeof value === 'string') {
+      resolved[key] = resolveTemplate(value, ctx);
+    } else if (typeof value === 'object' && value !== null) {
+      resolved[key] = {};
+      for (const [k, v] of Object.entries(value)) {
+        resolved[key][k] = typeof v === 'string' ? resolveTemplate(v, ctx) : v;
+      }
+    } else {
+      resolved[key] = value;
+    }
+  }
+  return resolved;
+}
+
 export const translations = {
   no: {
-    appTitle: 'Voss Taxi Kalkulator',
+    appTitle: '{{companyName}} Kalkulator',
     startAddress: 'Startadresse',
     destAddress: 'Destinasjon',
     fetchGoogle: 'Hent km og tid fra Google Maps',
@@ -78,7 +119,7 @@ export const translations = {
     helpKjoretoy: 'Antall passasjerer bestemmer kjøretøygruppe og pris.',
     helpVia: 'Mellomstasjon på ruten. Trykk Enter for å gå til neste felt.',
     offerTitle: 'PRISTILBUD',
-    offerSubtitle: 'Voss Taxi',
+    offerSubtitle: '{{companyName}}',
     offerDate: 'Dato',
     offerRoute: 'Rute',
     offerFrom: 'Fra',
@@ -106,7 +147,7 @@ export const translations = {
     }
   },
   en: {
-    appTitle: 'Voss Taxi Calculator',
+    appTitle: '{{companyName}} Calculator',
     startAddress: 'Start address',
     destAddress: 'Destination',
     fetchGoogle: 'Get km and time from Google Maps',
@@ -184,7 +225,7 @@ export const translations = {
     helpKjoretoy: 'Number of passengers determines vehicle group and price.',
     helpVia: 'Intermediate stop on the route. Press Enter to go to next field.',
     offerTitle: 'PRICE ESTIMATE',
-    offerSubtitle: 'Voss Taxi',
+    offerSubtitle: '{{companyName}}',
     offerDate: 'Date',
     offerRoute: 'Route',
     offerFrom: 'From',

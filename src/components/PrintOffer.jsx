@@ -19,7 +19,8 @@ export default function PrintOffer({
   baseTariff14,
   holidays = [],
   translations,
-  lang
+  lang,
+  tenant
 }) {
   const km = parseFloat(distanceKm) || 0;
   const minutes = parseInt(durationMin) || 0;
@@ -58,8 +59,8 @@ export default function PrintOffer({
   return (
     <div className="print-offer" id="printOffer">
       <div className="offer-header">
-        <img src="/vosstaxi_logo_orange.png" alt="Voss Taxi" className="offer-logo-img" />
-        <div className="offer-logo">Voss Taxi</div>
+        <img src={tenant?.branding?.logo || '/vosstaxi_logo_orange.png'} alt={tenant?.branding?.logoAlt || 'Taxi'} className="offer-logo-img" />
+        <div className="offer-logo">{tenant?.branding?.companyName || translations.offerSubtitle}</div>
         <div className="offer-date-header">
           {translations.offerDate}: {dateStr}
         </div>
@@ -188,7 +189,7 @@ export default function PrintOffer({
       </div>
 
       <div className="offer-footer">
-        © 2025 Voss Taxi | {translations.madeBy}
+        © {new Date().getFullYear()} {tenant?.branding?.copyrightHolder || tenant?.branding?.companyName || translations.offerSubtitle} | {translations.madeBy}
       </div>
     </div>
   );
