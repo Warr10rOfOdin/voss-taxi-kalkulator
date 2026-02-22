@@ -191,24 +191,28 @@ function App() {
             onPrint={handlePrint}
           />
 
-          <TariffTable
-            baseTariff14={baseTariff}
-            vehicleGroup={tripParams.vehicleGroup}
-            translations={t}
-          />
+          {tenant?.features?.showTariffTable !== false && (
+            <TariffTable
+              baseTariff14={baseTariff}
+              vehicleGroup={tripParams.vehicleGroup}
+              translations={t}
+            />
+          )}
         </div>
 
         {/* Right Column: Map */}
-        <div className="right-column">
-          <MapDisplay
-            startAddress={addresses.startAddress}
-            destAddress={addresses.destAddress}
-            viaAddresses={addresses.viaAddresses}
-            onRouteCalculated={tripParams.updateRouteResults}
-            routeTrigger={routeTrigger}
-            translations={t}
-          />
-        </div>
+        {tenant?.features?.showMap !== false && (
+          <div className="right-column">
+            <MapDisplay
+              startAddress={addresses.startAddress}
+              destAddress={addresses.destAddress}
+              viaAddresses={addresses.viaAddresses}
+              onRouteCalculated={tripParams.updateRouteResults}
+              routeTrigger={routeTrigger}
+              translations={t}
+            />
+          </div>
+        )}
       </div>
 
       {/* Print-only Offer */}
@@ -246,9 +250,10 @@ function App() {
       <TariffEditorModal
         isOpen={isTariffModalOpen}
         onClose={() => setIsTariffModalOpen(false)}
-        baseTariff14={baseTariff}
+        initialBaseTariff14={baseTariff}
         onSave={setBaseTariff}
         translations={t}
+        tenantId={tenant?.id}
       />
     </div>
   );
