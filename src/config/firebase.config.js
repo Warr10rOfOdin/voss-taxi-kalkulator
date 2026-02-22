@@ -25,11 +25,28 @@ export const firebaseConfig = {
 
 /**
  * Database paths used across all apps
+ * Supports multi-tenancy by scoping paths to a tenant ID
  */
 export const DATABASE_PATHS = {
   TARIFFS_BASE14: 'tariffs/base14',
   TARIFFS_ALL: 'tariffs'
 };
+
+/**
+ * Get tenant-scoped database paths
+ * @param {string} tenantId - The tenant identifier
+ * @returns {Object} Tenant-scoped database paths
+ */
+export function getTenantPaths(tenantId) {
+  if (!tenantId || tenantId === 'voss-taxi') {
+    // Default tenant uses original paths for backward compatibility
+    return DATABASE_PATHS;
+  }
+  return {
+    TARIFFS_BASE14: `tenants/${tenantId}/tariffs/base14`,
+    TARIFFS_ALL: `tenants/${tenantId}/tariffs`
+  };
+}
 
 /**
  * Default tariff password (can be overridden via environment variable)

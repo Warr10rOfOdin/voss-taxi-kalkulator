@@ -11,18 +11,22 @@ import { DEFAULT_BASE_TARIFF_14 } from '../utils/tariffCalculator';
  * - Real-time sync via Firebase subscription
  * - Automatic localStorage backup
  *
+ * @param {string} tenantId - Optional tenant ID for multi-tenancy
  * @returns {Object} { baseTariff, setBaseTariff }
  */
-export function useTariffData() {
+export function useTariffData(tenantId) {
   const [baseTariff, setBaseTariff] = useState(DEFAULT_BASE_TARIFF_14);
 
+  // Tenant-scoped localStorage key
+  const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'vossTaxiTariffs';
+
   useEffect(() => {
-    console.log('[useTariffData] Loading tariffs...');
+    console.log(`[useTariffData] Loading tariffs for tenant: ${tenantId || 'default'}...`);
 
     const loadTariffs = async () => {
       try {
-        // Try Firebase first
-        const firebaseTariff = await getTariffFromFirebase();
+        // Try Firebase first (tenant-scoped)
+        const firebaseTariff = await getTariffFromFirebase(tenantId);
         if (firebaseTariff) {
           console.log('[useTariffData] Loaded from Firebase');
           setBaseTariff(firebaseTariff);
@@ -32,9 +36,9 @@ export function useTariffData() {
         console.error('[useTariffData] Firebase load failed:', error);
       }
 
-      // Fallback to localStorage
+      // Fallback to localStorage (tenant-scoped key)
       try {
-        const saved = localStorage.getItem('vossTaxiTariffs');
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
           console.log('[useTariffData] Loaded from localStorage');
           setBaseTariff(JSON.parse(saved));
@@ -50,24 +54,24 @@ export function useTariffData() {
 
     loadTariffs();
 
-    // Subscribe to real-time Firebase updates
+    // Subscribe to real-time Firebase updates (tenant-scoped)
     const unsubscribe = subscribeTariffChanges((newTariff) => {
       console.log('[useTariffData] Real-time update from Firebase');
       setBaseTariff(newTariff);
 
-      // Backup to localStorage
+      // Backup to localStorage (tenant-scoped)
       try {
-        localStorage.setItem('vossTaxiTariffs', JSON.stringify(newTariff));
+        localStorage.setItem(storageKey, JSON.stringify(newTariff));
       } catch (error) {
         console.error('[useTariffData] Failed to update localStorage:', error);
       }
-    });
+    }, tenantId);
 
     return () => {
       console.log('[useTariffData] Cleaning up Firebase subscription');
       unsubscribe();
     };
-  }, []);
+  }, [tenantId, storageKey]);
 
   return { baseTariff, setBaseTariff };
 }
