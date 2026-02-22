@@ -5,34 +5,35 @@ import {
 } from '../utils/tariffCalculator';
 
 export default function EstimatedPriceCard({
-  km,
-  minutes,
-  startDate,
-  startTime,
-  selectedGroup,
+  distanceKm: rawKm,
+  durationMin: rawMin,
+  tripDate,
+  tripTime,
+  vehicleGroup,
   baseTariff14,
   holidays = [],
   translations,
-  lang
+  onPrint,
+  showPrintButton = true
 }) {
-  const distanceKm = Math.max(0, Number(km) || 0);
-  const durationMin = Math.max(0, Number(minutes) || 0);
-  
+  const distanceKm = Math.max(0, Number(rawKm) || 0);
+  const durationMin = Math.max(0, Number(rawMin) || 0);
+
   let estimatedPrice = translations.enterKmTime;
   let segments = [];
   let periodLabel = '';
-  
-  if (startDate && startTime) {
-    const startDateTime = new Date(`${startDate}T${startTime}`);
+
+  if (tripDate && tripTime) {
+    const startDateTime = new Date(`${tripDate}T${tripTime}`);
     const periodType = getTariffTypeAt(startDateTime, holidays);
     periodLabel = translations.periodLabels[periodType];
-    
+
     if (distanceKm > 0 && durationMin > 0) {
       const result = calculateTimelineEstimate({
         km: distanceKm,
         minutes: durationMin,
         baseTariff14,
-        groupKey: selectedGroup,
+        groupKey: vehicleGroup,
         startDateTime,
         holidays,
         enableDebugLog: false
@@ -53,7 +54,7 @@ export default function EstimatedPriceCard({
         <div className="estimate-details">
           <div className="estimate-row">
             <span className="estimate-label">{translations.gruppe}</span>
-            <span className="estimate-value">{translations.groupLabels[selectedGroup]}</span>
+            <span className="estimate-value">{translations.groupLabels[vehicleGroup]}</span>
           </div>
           <div className="estimate-row">
             <span className="estimate-label">{translations.periodeVedStart}</span>
@@ -109,6 +110,12 @@ export default function EstimatedPriceCard({
       <div className="estimate-disclaimer">
         {translations.disclaimer}
       </div>
+
+      {showPrintButton && onPrint && (
+        <button className="btn btn-secondary" onClick={onPrint} style={{ marginTop: '12px', width: '100%' }}>
+          {translations.printPdf}
+        </button>
+      )}
     </div>
   );
 }

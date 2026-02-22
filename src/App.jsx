@@ -189,6 +189,7 @@ function App() {
             holidays={holidays}
             translations={t}
             onPrint={handlePrint}
+            showPrintButton={tenant?.features?.showPrintButton !== false}
           />
 
           {tenant?.features?.showTariffTable !== false && (
