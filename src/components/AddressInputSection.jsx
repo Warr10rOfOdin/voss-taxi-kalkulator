@@ -15,6 +15,8 @@ import HelpTooltip from './HelpTooltip';
  * @param {Object} props.translations - Translation object
  * @param {string} props.lang - Current language
  * @param {string} props.apiKey - Google Maps API key
+ * @param {string} props.mapsCountry - Country code for address autocomplete restriction
+ * @param {string} props.startPlaceholder - Placeholder for start address input
  */
 export default function AddressInputSection({
   addresses,
@@ -23,7 +25,9 @@ export default function AddressInputSection({
   keyHandlers,
   translations,
   lang,
-  apiKey
+  apiKey,
+  mapsCountry = 'no',
+  startPlaceholder = 'Hestavangen 11, Voss'
 }) {
   const {
     startAddress,
@@ -55,8 +59,9 @@ export default function AddressInputSection({
             onChange={e => setStartAddress(e.target.value)}
             onKeyDown={keyHandlers.handleStartAddressKeydown}
             onPlaceSelected={onPlaceSelected}
-            placeholder="Hestavangen 11, Voss"
+            placeholder={startPlaceholder}
             apiKey={apiKey}
+            mapsCountry={mapsCountry}
           />
         </div>
 
@@ -74,6 +79,7 @@ export default function AddressInputSection({
             onPlaceSelected={onPlaceSelected}
             placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
             apiKey={apiKey}
+            mapsCountry={mapsCountry}
           />
         </div>
 
@@ -103,6 +109,7 @@ export default function AddressInputSection({
                   onPlaceSelected={onPlaceSelected}
                   placeholder={lang === 'no' ? 'Adresse eller sted' : 'Address or place'}
                   apiKey={apiKey}
+                  mapsCountry={mapsCountry}
                 />
               </div>
               <button

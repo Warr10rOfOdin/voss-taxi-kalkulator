@@ -160,6 +160,8 @@ function App() {
           translations={t}
           lang={lang}
           apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+          mapsCountry={tenant?.defaults?.mapsCountry || 'no'}
+          startPlaceholder={tenant?.defaults?.startAddress || 'Hestavangen 11, Voss'}
         />
 
         {/* Trip Parameters */}
@@ -211,6 +213,9 @@ function App() {
               onRouteCalculated={tripParams.updateRouteResults}
               routeTrigger={routeTrigger}
               translations={t}
+              lang={lang}
+              mapCenter={tenant?.defaults?.mapCenter || { lat: 60.6280, lng: 6.4118 }}
+              mapRegion={tenant?.defaults?.mapsRegion || 'NO'}
             />
           </div>
         )}

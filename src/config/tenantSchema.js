@@ -44,7 +44,8 @@ export const DEFAULT_TENANT = {
     startAddress: 'Hestavangen 11, Voss',
     lang: 'no',
     mapsCountry: 'no',
-    mapsRegion: 'NO'
+    mapsRegion: 'NO',
+    mapCenter: { lat: 60.6280, lng: 6.4118 } // Voss, Norway
   },
 
   // Contact info (shown in PDF footer etc.)

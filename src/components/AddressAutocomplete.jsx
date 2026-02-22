@@ -8,7 +8,8 @@ export default function AddressAutocomplete({
   placeholder,
   id,
   inputRef,
-  apiKey
+  apiKey,
+  mapsCountry = 'no' // Default to Norway
 }) {
   const autocompleteRef = useRef(null);
   const internalInputRef = useRef(null);
@@ -48,7 +49,7 @@ export default function AddressAutocomplete({
       autocompleteRef.current = new window.google.maps.places.Autocomplete(
         internalInputRef.current,
         {
-          componentRestrictions: { country: 'no' }, // Restrict to Norway
+          componentRestrictions: { country: mapsCountry },
           fields: ['formatted_address', 'geometry', 'name'],
           types: ['geocode', 'establishment'] // Addresses and places
         }
