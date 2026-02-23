@@ -3,6 +3,9 @@ import { Loader } from '@googlemaps/js-api-loader';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+// Global flag to ensure the Google Maps Loader is only initialized once
+let mapsLoaderPromise = null;
+
 export default function MapDisplay({
   startAddress,
   destAddress,
@@ -19,18 +22,23 @@ export default function MapDisplay({
   const directionsRendererRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(null);
-  
-  // Initialize Google Maps
-  useEffect(() => {
-    const loader = new Loader({
-      apiKey: GOOGLE_MAPS_API_KEY,
-      version: 'weekly',
-      libraries: ['places'],
-      language: lang,
-      region: mapRegion
-    });
 
-    loader.load().then(() => {
+  // Initialize Google Maps (only once, regardless of prop changes)
+  useEffect(() => {
+    // If the loader hasn't been created yet, create it with initial settings
+    if (!mapsLoaderPromise) {
+      const loader = new Loader({
+        apiKey: GOOGLE_MAPS_API_KEY,
+        version: 'weekly',
+        libraries: ['places'],
+        language: lang, // Set once on first load
+        region: mapRegion // Set once on first load
+      });
+      mapsLoaderPromise = loader.load();
+    }
+
+    // Use the existing loader promise (singleton pattern)
+    mapsLoaderPromise.then(() => {
       if (mapContainerRef.current && !mapInstanceRef.current) {
         mapInstanceRef.current = new window.google.maps.Map(mapContainerRef.current, {
           center: mapCenter,
@@ -39,7 +47,7 @@ export default function MapDisplay({
           streetViewControl: false,
           fullscreenControl: true,
         });
-        
+
         directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
           map: mapInstanceRef.current,
           suppressMarkers: false,
@@ -48,22 +56,29 @@ export default function MapDisplay({
             strokeWeight: 5
           }
         });
-        
+
         setMapLoaded(true);
       }
     }).catch(err => {
       console.error('Google Maps failed to load:', err);
       setMapError(err.message);
     });
-    
+
     return () => {
       // Cleanup
       if (directionsRendererRef.current) {
         directionsRendererRef.current.setMap(null);
       }
     };
-  }, [lang, mapCenter, mapRegion]); // Reinitialize if these change
-  
+  }, []); // Empty deps — initialize only once
+
+  // Update map center when mapCenter prop changes (e.g., control board updates tenant)
+  useEffect(() => {
+    if (mapInstanceRef.current && mapCenter) {
+      mapInstanceRef.current.setCenter(mapCenter);
+    }
+  }, [mapCenter]);
+
   // Update route only when explicitly triggered (not on every address change)
   useEffect(() => {
     // Only proceed if routeTrigger > 0 (explicit trigger) or if it's the initial state
@@ -134,18 +149,18 @@ export default function MapDisplay({
       }
     });
   }, [mapLoaded, routeTrigger]);
-  
+
   return (
     <div className="card map-card" id="mapCard">
       <div className="card-title">{translations.mapTitle}</div>
       <div className="map-wrapper">
         {/* Map container - Google Maps will take this over completely */}
-        <div 
-          className="map-container" 
+        <div
+          className="map-container"
           ref={mapContainerRef}
           style={{ display: mapLoaded || mapError ? 'block' : 'none' }}
         />
-        
+
         {/* Placeholder - separate from map container to avoid DOM conflicts */}
         {!mapLoaded && !mapError && (
           <div className="map-container map-loading">
@@ -160,7 +175,7 @@ export default function MapDisplay({
             </div>
           </div>
         )}
-        
+
         {mapError && (
           <div className="map-container map-error">
             <div className="map-placeholder">
