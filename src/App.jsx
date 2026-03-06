@@ -1,28 +1,35 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { getTranslations } from './locales/translations';
 import { getNorwegianHolidays } from './utils/helligdager';
 import { useTenant } from './context/TenantContext';
+import { LoadingSpinner } from './components/common';
 
 // Custom hooks
 import {
   useTariffData,
   useAddressInputs,
   useTripParameters,
-  useRouteCalculation
+  useRouteCalculation,
+  useOnlineStatus
 } from './hooks';
 
-// Components
+// Core components (loaded immediately)
 import EstimatedPriceCard from './components/EstimatedPriceCard';
 import TariffTable from './components/TariffTable';
-import TariffEditorModal from './components/TariffEditorModal';
 import MapDisplay from './components/MapDisplay';
-import PrintOffer from './components/PrintOffer';
 import AddressInputSection from './components/AddressInputSection';
 import TripParametersSection from './components/TripParametersSection';
+
+// Lazy-loaded components (not needed immediately)
+const TariffEditorModal = lazy(() => import('./components/TariffEditorModal'));
+const PrintOffer = lazy(() => import('./components/PrintOffer'));
 
 function App() {
   // Tenant context
   const { tenant } = useTenant();
+
+  // Network status
+  const isOnline = useOnlineStatus();
 
   // Language state (initialized from tenant defaults)
   const [lang, setLang] = useState(tenant?.defaults?.lang || 'no');
@@ -123,145 +130,170 @@ function App() {
   }, []);
 
   return (
-    <div className="app">
-      {/* Top Card */}
-      <div className="card top-card">
-        <div className="header-row">
-          <div className="logo-title-group">
-            <img src={tenant?.branding?.logo || '/vosstaxi_logo_orange.png'} alt={tenant?.branding?.logoAlt || 'Taxi'} className="app-logo" />
-            <h1>{t.appTitle}</h1>
-          </div>
-          {tenant?.features?.showLanguageSwitcher !== false && <div className="lang-switcher">
-            <button
-              className={`lang-btn ${lang === 'no' ? 'active' : ''}`}
-              onClick={() => setLang('no')}
-            >
-              NO
-            </button>
-            <button
-              className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-              onClick={() => setLang('en')}
-            >
-              EN
-            </button>
-          </div>}
+    <>
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          background: 'rgba(231, 76, 60, 0.95)',
+          color: 'white',
+          padding: '12px',
+          textAlign: 'center',
+          zIndex: 10001,
+          fontSize: '0.9rem',
+          fontWeight: '500'
+        }}>
+          ⚠ {t.offlineMessage || 'No internet connection. Some features may not work.'}
         </div>
+      )}
 
-        {/* Address Inputs */}
-        <AddressInputSection
-          addresses={addresses}
-          onPlaceSelected={handlePlaceSelected}
-          onTriggerRoute={triggerRouteCalculation}
-          keyHandlers={{
-            handleStartAddressKeydown,
-            handleDestAddressKeydown,
-            handleViaKeydown
-          }}
-          translations={t}
-          lang={lang}
-          apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
-          mapsCountry={tenant?.defaults?.mapsCountry || 'no'}
-          startPlaceholder={tenant?.defaults?.startAddress || 'Hestavangen 11, Voss'}
-        />
+      <div className="app">
+        {/* Top Card */}
+        <div className="card top-card">
+          <div className="header-row">
+            <div className="logo-title-group">
+              <img src={tenant?.branding?.logo || '/vosstaxi_logo_orange.png'} alt={tenant?.branding?.logoAlt || 'Taxi'} className="app-logo" />
+              <h1>{t.appTitle}</h1>
+            </div>
+            {tenant?.features?.showLanguageSwitcher !== false && <div className="lang-switcher">
+              <button
+                className={`lang-btn ${lang === 'no' ? 'active' : ''}`}
+                onClick={() => setLang('no')}
+              >
+                NO
+              </button>
+              <button
+                className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
+                onClick={() => setLang('en')}
+              >
+                EN
+              </button>
+            </div>}
+          </div>
 
-        {/* Trip Parameters */}
-        <TripParametersSection
-          tripParams={tripParams}
-          onTriggerRoute={triggerRouteCalculation}
-          onReset={handleResetAll}
-          keyHandlers={{
-            handleDistanceKeydown,
-            handleDurationKeydown
-          }}
-          translations={t}
-        />
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="content-grid">
-        {/* Left Column: Estimate and Tariff Table */}
-        <div className="left-column">
-          <EstimatedPriceCard
-            distanceKm={parseFloat(tripParams.distanceKm) || 0}
-            durationMin={parseInt(tripParams.durationMin) || 0}
-            vehicleGroup={tripParams.vehicleGroup}
-            baseTariff14={baseTariff}
-            tripDate={tripParams.tripDate}
-            tripTime={tripParams.tripTime}
-            holidays={holidays}
+          {/* Address Inputs */}
+          <AddressInputSection
+            addresses={addresses}
+            onPlaceSelected={handlePlaceSelected}
+            onTriggerRoute={triggerRouteCalculation}
+            keyHandlers={{
+              handleStartAddressKeydown,
+              handleDestAddressKeydown,
+              handleViaKeydown
+            }}
             translations={t}
-            onPrint={handlePrint}
-            showPrintButton={tenant?.features?.showPrintButton !== false}
+            lang={lang}
+            apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}
+            mapsCountry={tenant?.defaults?.mapsCountry || 'no'}
+            startPlaceholder={tenant?.defaults?.startAddress || 'Hestavangen 11, Voss'}
           />
 
-          {tenant?.features?.showTariffTable !== false && (
-            <TariffTable
-              baseTariff14={baseTariff}
+          {/* Trip Parameters */}
+          <TripParametersSection
+            tripParams={tripParams}
+            onTriggerRoute={triggerRouteCalculation}
+            onReset={handleResetAll}
+            keyHandlers={{
+              handleDistanceKeydown,
+              handleDurationKeydown
+            }}
+            translations={t}
+          />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="content-grid">
+          {/* Left Column: Estimate and Tariff Table */}
+          <div className="left-column">
+            <EstimatedPriceCard
+              distanceKm={parseFloat(tripParams.distanceKm) || 0}
+              durationMin={parseInt(tripParams.durationMin) || 0}
               vehicleGroup={tripParams.vehicleGroup}
+              baseTariff14={baseTariff}
+              tripDate={tripParams.tripDate}
+              tripTime={tripParams.tripTime}
+              holidays={holidays}
               translations={t}
+              onPrint={handlePrint}
+              showPrintButton={tenant?.features?.showPrintButton !== false}
             />
+
+            {tenant?.features?.showTariffTable !== false && (
+              <TariffTable
+                baseTariff14={baseTariff}
+                vehicleGroup={tripParams.vehicleGroup}
+                translations={t}
+              />
+            )}
+          </div>
+
+          {/* Right Column: Map */}
+          {tenant?.features?.showMap !== false && (
+            <div className="right-column">
+              <MapDisplay
+                startAddress={addresses.startAddress}
+                destAddress={addresses.destAddress}
+                viaAddresses={addresses.viaAddresses}
+                onRouteCalculated={tripParams.updateRouteResults}
+                routeTrigger={routeTrigger}
+                translations={t}
+                lang={lang}
+                mapCenter={tenant?.defaults?.mapCenter || { lat: 60.6280, lng: 6.4118 }}
+                mapRegion={tenant?.defaults?.mapsRegion || 'NO'}
+              />
+            </div>
           )}
         </div>
 
-        {/* Right Column: Map */}
-        {tenant?.features?.showMap !== false && (
-          <div className="right-column">
-            <MapDisplay
-              startAddress={addresses.startAddress}
-              destAddress={addresses.destAddress}
-              viaAddresses={addresses.viaAddresses}
-              onRouteCalculated={tripParams.updateRouteResults}
-              routeTrigger={routeTrigger}
-              translations={t}
-              lang={lang}
-              mapCenter={tenant?.defaults?.mapCenter || { lat: 60.6280, lng: 6.4118 }}
-              mapRegion={tenant?.defaults?.mapsRegion || 'NO'}
-            />
-          </div>
+        {/* Print-only Offer */}
+        <Suspense fallback={null}>
+          <PrintOffer
+            startAddress={addresses.startAddress}
+            destAddress={addresses.destAddress}
+            viaAddresses={addresses.viaAddresses}
+            distanceKm={parseFloat(tripParams.distanceKm) || 0}
+            durationMin={parseInt(tripParams.durationMin) || 0}
+            vehicleGroup={tripParams.vehicleGroup}
+            tripDate={tripParams.tripDate}
+            tripTime={tripParams.tripTime}
+            baseTariff14={baseTariff}
+            holidays={holidays}
+            translations={t}
+            lang={lang}
+            tenant={tenant}
+          />
+        </Suspense>
+
+        {/* Floating Hamburger Menu Button */}
+        {tenant?.features?.showTariffEditor !== false && (
+          <button
+            className="hamburger-menu-btn"
+            onClick={() => setIsTariffModalOpen(true)}
+            aria-label={t.editTariffs}
+            title={t.editTariffs}
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
         )}
+
+        {/* Tariff Editor Modal */}
+        <Suspense fallback={<LoadingSpinner size="large" fullScreen />}>
+          <TariffEditorModal
+            isOpen={isTariffModalOpen}
+            onClose={() => setIsTariffModalOpen(false)}
+            initialBaseTariff14={baseTariff}
+            onSave={setBaseTariff}
+            translations={t}
+            tenantId={tenant?.id}
+          />
+        </Suspense>
       </div>
-
-      {/* Print-only Offer */}
-      <PrintOffer
-        startAddress={addresses.startAddress}
-        destAddress={addresses.destAddress}
-        viaAddresses={addresses.viaAddresses}
-        distanceKm={parseFloat(tripParams.distanceKm) || 0}
-        durationMin={parseInt(tripParams.durationMin) || 0}
-        vehicleGroup={tripParams.vehicleGroup}
-        tripDate={tripParams.tripDate}
-        tripTime={tripParams.tripTime}
-        baseTariff14={baseTariff}
-        holidays={holidays}
-        translations={t}
-        lang={lang}
-        tenant={tenant}
-      />
-
-      {/* Floating Hamburger Menu Button */}
-      {tenant?.features?.showTariffEditor !== false && (
-        <button
-          className="hamburger-menu-btn"
-          onClick={() => setIsTariffModalOpen(true)}
-          aria-label={t.editTariffs}
-          title={t.editTariffs}
-        >
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-        </button>
-      )}
-
-      {/* Tariff Editor Modal */}
-      <TariffEditorModal
-        isOpen={isTariffModalOpen}
-        onClose={() => setIsTariffModalOpen(false)}
-        initialBaseTariff14={baseTariff}
-        onSave={setBaseTariff}
-        translations={t}
-        tenantId={tenant?.id}
-      />
-    </div>
+    </>
   );
 }
 
