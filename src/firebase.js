@@ -10,6 +10,98 @@ const database = getDatabase(app);
 // Default tariff database reference (backward compatible)
 const TARIFFS_PATH = DATABASE_PATHS.TARIFFS_BASE14;
 
+// ─── Tenant Registry Functions ────────────────────────────────────────────
+
+/**
+ * Encode a domain name for use as a Firebase key
+ * Firebase keys cannot contain '.', so we replace with '_dot_'
+ * @param {string} domain - e.g. "vosstaksi.no"
+ * @returns {string} - e.g. "vosstaksi_dot_no"
+ */
+function encodeDomainKey(domain) {
+  return domain.replace(/\./g, '_dot_');
+}
+
+/**
+ * Fetch the full domain-to-tenantId mapping from Firebase
+ * @returns {Promise<Object|null>} - Map of encoded-domain → tenantId, or null
+ */
+export async function getDomainMap() {
+  try {
+    const domainMapRef = ref(database, DATABASE_PATHS.DOMAIN_MAP);
+    const snapshot = await get(domainMapRef);
+    if (snapshot.exists()) {
+      return snapshot.val(); // { "vosstaksi_dot_no": "voss-taxi", ... }
+    }
+    return null;
+  } catch (error) {
+    console.error('[Firebase] Error fetching domain map:', error);
+    return null;
+  }
+}
+
+/**
+ * Look up a tenant ID by hostname
+ * @param {string} hostname - e.g. "vosstaksi.no"
+ * @returns {Promise<string|null>} - Tenant ID or null
+ */
+export async function lookupTenantByDomain(hostname) {
+  try {
+    const encoded = encodeDomainKey(hostname);
+    const domainRef = ref(database, `${DATABASE_PATHS.DOMAIN_MAP}/${encoded}`);
+    const snapshot = await get(domainRef);
+    if (snapshot.exists()) {
+      return snapshot.val(); // tenantId string
+    }
+    return null;
+  } catch (error) {
+    console.error(`[Firebase] Error looking up domain ${hostname}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch a single tenant config from Firebase
+ * @param {string} tenantId - e.g. "voss-taxi"
+ * @returns {Promise<Object|null>} - Tenant config or null
+ */
+export async function getTenantConfig(tenantId) {
+  try {
+    const configRef = ref(database, `${DATABASE_PATHS.TENANT_REGISTRY}/${tenantId}/config`);
+    const snapshot = await get(configRef);
+    if (snapshot.exists()) {
+      console.log(`[Firebase] Tenant config loaded: ${tenantId}`);
+      return snapshot.val();
+    }
+    console.log(`[Firebase] No config found for tenant: ${tenantId}`);
+    return null;
+  } catch (error) {
+    console.error(`[Firebase] Error fetching tenant config for ${tenantId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Subscribe to real-time changes on a tenant's config
+ * @param {string} tenantId - e.g. "voss-taxi"
+ * @param {Function} callback - Called with the updated config object
+ * @returns {Function} - Unsubscribe function
+ */
+export function subscribeTenantConfig(tenantId, callback) {
+  const configRef = ref(database, `${DATABASE_PATHS.TENANT_REGISTRY}/${tenantId}/config`);
+
+  const unsubscribe = onValue(configRef, (snapshot) => {
+    if (snapshot.exists()) {
+      console.log(`[Firebase] Tenant config updated: ${tenantId}`);
+      callback(snapshot.val());
+    }
+  }, (error) => {
+    console.error(`[Firebase] Error subscribing to tenant config for ${tenantId}:`, error);
+  });
+
+  return unsubscribe;
+}
+
 /**
  * Get the tariff path for a given tenant
  * @param {string} tenantId - Tenant ID (optional, defaults to voss-taxi)

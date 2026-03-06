@@ -8,3 +8,4 @@ export { useTariffData } from './useTariffData';
 export { useAddressInputs } from './useAddressInputs';
 export { useTripParameters } from './useTripParameters';
 export { useRouteCalculation } from './useRouteCalculation';
+export { useOnlineStatus } from './useOnlineStatus';
