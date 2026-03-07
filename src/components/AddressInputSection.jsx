@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import AddressAutocomplete from './AddressAutocomplete';
-import HelpTooltip from './HelpTooltip';
+import { InfoTooltip } from './common';
 
 /**
  * Address Input Section Component
@@ -51,7 +51,11 @@ export default function AddressInputSection({
         <div className="form-group flex-1">
           <div className="label-with-help">
             <label htmlFor="startAddress">{translations.startAddress}</label>
-            <HelpTooltip text={translations.helpStartAddress} />
+            <InfoTooltip
+              content={translations.helpStartAddress}
+              position="top"
+              ariaLabel="Help for start address"
+            />
           </div>
           <AddressAutocomplete
             id="startAddress"
@@ -68,7 +72,11 @@ export default function AddressInputSection({
         <div className="form-group flex-1">
           <div className="label-with-help">
             <label htmlFor="destAddress">{translations.destAddress}</label>
-            <HelpTooltip text={translations.helpDestAddress} />
+            <InfoTooltip
+              content={translations.helpDestAddress}
+              position="top"
+              ariaLabel="Help for destination address"
+            />
           </div>
           <AddressAutocomplete
             id="destAddress"
@@ -99,7 +107,11 @@ export default function AddressInputSection({
               <div className="form-group flex-1">
                 <div className="label-with-help">
                   <label>{translations.viaPoint} {index + 1}</label>
-                  <HelpTooltip text={translations.helpVia} />
+                  <InfoTooltip
+                    content={translations.helpVia}
+                    position="top"
+                    ariaLabel="Help for via point"
+                  />
                 </div>
                 <AddressAutocomplete
                   inputRef={el => viaInputRefs.current[index] = el}

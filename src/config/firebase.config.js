@@ -40,7 +40,7 @@ export const DATABASE_PATHS = {
  * @returns {Object} Tenant-scoped database paths
  */
 export function getTenantPaths(tenantId) {
-  if (!tenantId || tenantId === 'voss-taxi') {
+  if (!tenantId || tenantId === 'drivas-fleet') {
     // Default tenant uses original paths for backward compatibility
     return DATABASE_PATHS;
   }

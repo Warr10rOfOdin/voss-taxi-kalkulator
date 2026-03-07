@@ -95,7 +95,7 @@ export default function TariffEditorModal({
     const cleaned = normaliseBaseTariff14(currentBase);
 
     // Save to localStorage for offline fallback (tenant-scoped key)
-    const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'vossTaxiTariffs';
+    const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'drivasFleetTariffs';
     try {
       localStorage.setItem(storageKey, JSON.stringify(cleaned));
     } catch (error) {

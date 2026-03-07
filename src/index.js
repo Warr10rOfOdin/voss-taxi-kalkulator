@@ -1,5 +1,5 @@
 // Main calculator exports for integration into other applications
-// Import this file to use the Voss Taxi Calculator in your app
+// Import this file to use the Drivas Fleet Taxi Calculator in your app
 
 // Main Calculator Component
 export { default as App } from './App';

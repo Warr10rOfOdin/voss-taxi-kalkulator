@@ -1,9 +1,9 @@
 # Architecture Documentation
 
-> Technical architecture and design decisions for the Voss Taxi Kalkulator
+> Technical architecture and design decisions for the Drivas Fleet Taxi Calculator
 
-**Last Updated**: 2026-03-06
-**Version**: 2.0.0
+**Last Updated**: 2026-03-07
+**Version**: 2.1.0
 
 ---
 
@@ -16,17 +16,18 @@
 5. [State Management](#state-management)
 6. [Performance Optimizations](#performance-optimizations)
 7. [Error Handling](#error-handling)
-8. [Utilities Layer](#utilities-layer)
-9. [Multi-Tenancy Architecture](#multi-tenancy-architecture)
-10. [Firebase Integration](#firebase-integration)
-11. [Testing Strategy](#testing-strategy)
-12. [Deployment](#deployment)
+8. [User Experience Enhancements](#user-experience-enhancements)
+9. [Utilities Layer](#utilities-layer)
+10. [Multi-Tenancy Architecture](#multi-tenancy-architecture)
+11. [Firebase Integration](#firebase-integration)
+12. [Testing Strategy](#testing-strategy)
+13. [Deployment](#deployment)
 
 ---
 
 ## Overview
 
-The Voss Taxi Kalkulator is a **multi-tenant SaaS** React application for calculating taxi fares in Norway. It features:
+The Drivas Fleet Taxi Calculator is a **multi-tenant SaaS** React application for calculating taxi fares in Norway. It features:
 
 - **Multi-tenant white-label system** — Single codebase serves multiple taxi companies with full customization
 - **Real-time Firebase integration** — Tenant configs and tariffs sync instantly from Firebase
@@ -62,6 +63,8 @@ Business logic lives in hooks, not components:
 - `useTripParameters` — Manage distance, duration, date, time, vehicle group
 - `useRouteCalculation` — Trigger Google Maps route calculations
 - `useOnlineStatus` — Detect network connectivity
+- `useFormValidation` — Real-time form validation with visual feedback
+- `useKeyboardShortcuts` — Global keyboard shortcut handling
 
 **Benefits:**
 - Reusability across components
@@ -121,6 +124,9 @@ src/
 │   │   ├── ErrorBoundary.jsx
 │   │   ├── LoadingSpinner.jsx
 │   │   ├── Toast.jsx
+│   │   ├── InfoTooltip.jsx      # Enhanced tooltips with mobile support
+│   │   ├── Footer.jsx            # Footer with Drivas Fleet branding
+│   │   ├── KeyboardShortcuts.jsx # Keyboard shortcuts panel
 │   │   └── index.js
 │   ├── AddressAutocomplete.jsx
 │   ├── AddressInputSection.jsx
@@ -130,7 +136,7 @@ src/
 │   ├── TariffEditorModal.jsx
 │   ├── TariffTable.jsx
 │   ├── TripParametersSection.jsx
-│   └── HelpTooltip.jsx
+│   └── HelpTooltip.jsx          # Legacy tooltip (deprecated)
 ├── config/
 │   ├── firebase.config.js   # Firebase credentials & paths
 │   ├── tenantResolver.js    # Tenant resolution logic
@@ -143,12 +149,13 @@ src/
 │   ├── useRouteCalculation.js
 │   ├── useTariffData.js
 │   ├── useTripParameters.js
+│   ├── useFormValidation.js    # Real-time validation with visual feedback
 │   └── index.js
 ├── locales/
 │   └── translations.js      # Norwegian/English translations
 ├── themes/
 │   ├── themeDefaults.js     # 60+ CSS variables
-│   ├── vossTaxi.js          # Dark theme (default)
+│   ├── drivasDark.js        # Dark glassmorphism theme (default)
 │   ├── lightClean.js        # Light theme
 │   └── index.js
 ├── utils/
@@ -180,7 +187,7 @@ resolveTenantAsync()
     ├─ Check query param (?tenant=xyz)
     ├─ OR check subdomain (xyz.taxikalkulator.no)
     ├─ OR check custom domain → Firebase /domainMap/
-    └─ Fallback to 'voss-taxi'
+    └─ Fallback to 'drivas-fleet' (generic Drivas Fleet brand)
     ↓
 getTenantConfig(tenantId)
     ├─ Fetch /tenantRegistry/{id}/config from Firebase
@@ -432,6 +439,165 @@ showToast(message, 'error');
 ```
 
 Converts technical errors to localized, actionable messages.
+
+---
+
+## User Experience Enhancements
+
+### 1. **Enhanced Help System (InfoTooltip)**
+
+The `InfoTooltip` component provides context-sensitive help with mobile-first design:
+
+**Features:**
+- **Desktop**: Hover to show tooltip
+- **Mobile**: Tap to toggle (click outside to close)
+- **Keyboard accessible**: Focus/blur handlers
+- **Positioning**: top, bottom, left, right (auto-adjusts for viewport)
+- **Sizes**: small, medium, large
+- **ARIA**: Proper labeling for screen readers
+
+**Usage:**
+```jsx
+<InfoTooltip
+  content="Total distance for the trip in kilometers"
+  position="top"
+  ariaLabel="Help for distance input"
+/>
+```
+
+**Replaces:** Legacy `HelpTooltip` component (simpler, desktop-only)
+
+### 2. **Form Validation with Visual Feedback**
+
+The `useFormValidation` hook provides real-time validation:
+
+**Features:**
+- **Blur validation**: Validates on first interaction
+- **Change validation**: Validates on subsequent changes
+- **Touched tracking**: Shows errors only after user interaction
+- **Field validation**: distance, duration, time, date
+- **Error messages**: Localized validation messages
+- **Visual feedback**: Red border, error text with shake animation
+
+**Usage:**
+```jsx
+const { errors, touched, validateField, markAsTouched } = useFormValidation();
+
+<input
+  value={distance}
+  onChange={e => {
+    setDistance(e.target.value);
+    if (touched.distance) validateField('distance', e.target.value);
+  }}
+  onBlur={e => {
+    markAsTouched('distance');
+    validateField('distance', e.target.value);
+  }}
+  className={touched.distance && errors.distance ? 'input-error' : ''}
+  aria-invalid={touched.distance && errors.distance ? 'true' : 'false'}
+/>
+{touched.distance && errors.distance && (
+  <span className="error-message" role="alert">
+    {errors.distance}
+  </span>
+)}
+```
+
+### 3. **Keyboard Shortcuts System**
+
+Global keyboard shortcuts with visual panel:
+
+**Features:**
+- **? key**: Toggle shortcuts panel
+- **Escape**: Close modal/panel
+- **Enter**: Advance to next field
+- **Tab**: Navigate between fields
+- **Ctrl+P**: Print/PDF (browser native)
+- **Input detection**: Shortcuts don't fire when typing in inputs
+- **Visual panel**: Shows all available shortcuts with key indicators
+
+**Implementation:**
+```jsx
+// Global shortcuts
+const shortcuts = useKeyboardShortcuts({
+  '?': () => setHelpOpen(true),
+  'Escape': () => setModalOpen(false),
+  'Ctrl+P': () => window.print()
+});
+
+// Shortcuts panel component
+<KeyboardShortcutsPanel translations={t} />
+```
+
+### 4. **Drivas Fleet Branding System**
+
+Multi-tenant white-label system with generic fallback:
+
+**Changes from previous version:**
+- Default tenant: `voss-taxi` → `drivas-fleet`
+- Default company name: `Voss Taxi` → `Taxi` (generic, easily customizable)
+- Footer: Shows "Powered by Drivas Fleet" (configurable per tenant)
+- Logo: Fallback to `/drivas-fleet-logo.svg`
+- Location: Changed from Voss to Bergen (more central Norway)
+
+**Tenant customization:**
+```javascript
+{
+  branding: {
+    companyName: 'ABC Taxi',           // Replaces {{companyName}} in translations
+    logo: '/abc-taxi-logo.svg',
+    poweredBy: {
+      no: 'Drevet av ABC Taxi',
+      en: 'Powered by ABC Taxi'
+    }
+  },
+  features: {
+    showPoweredBy: false                // Hide Drivas Fleet branding
+  }
+}
+```
+
+### 5. **Accessibility Improvements**
+
+ARIA labels and keyboard navigation throughout:
+
+**Enhancements:**
+- **ARIA labels**: All form inputs have descriptive labels
+- **ARIA invalid**: Inputs indicate validation state
+- **ARIA describedby**: Error messages linked to inputs
+- **Role alert**: Error messages announced by screen readers
+- **Focus management**: Keyboard navigation between fields
+- **Focus-visible styles**: Clear focus indicators for keyboard users
+- **44px touch targets**: Mobile-friendly button sizes
+
+### 6. **Visual Polish & Animations**
+
+~300 lines of CSS enhancements:
+
+**Animations:**
+- **Button ripple**: Material Design ripple effect on click
+- **Card hover**: Subtle elevation change
+- **Input focus**: Scale and glow effect
+- **Via addresses**: Slide-in animation when added
+- **Prices**: Fade-in-scale when calculated
+- **Errors**: Shake animation for validation errors
+- **Success**: Bounce animation for confirmations
+- **Modal**: Slide-in with backdrop fade
+
+**Responsive:**
+- **44px min touch targets** on mobile
+- **Responsive font sizes**: Scales for small screens
+- **Mobile-optimized layout**: Stacks on narrow viewports
+
+**Loading states:**
+- **Shimmer effect**: For loading content
+- **Pulse animation**: For pending actions
+- **Gradient shift**: For processing states
+
+**Print optimization:**
+- Hide non-essential elements (buttons, tooltips, shortcuts)
+- Remove animations and transitions
+- Optimize for A4 paper
 
 ---
 

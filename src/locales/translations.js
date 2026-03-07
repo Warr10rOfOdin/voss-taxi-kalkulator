@@ -144,7 +144,20 @@ export const translations = {
       laurdag: 'Laurdag',
       helgNatt: 'Helg/Natt',
       hoytid: 'Høytid',
-    }
+    },
+    keyboardShortcuts: 'Tastatursnarveier',
+    shortcutAdvanceField: 'Gå til neste felt',
+    shortcutTab: 'Naviger mellom felt',
+    shortcutEscape: 'Lukk modal/panel',
+    shortcutHelp: 'Vis denne hjelpen',
+    shortcutPrint: 'Skriv ut/PDF',
+    shortcutTip: 'Trykk ? når som helst for å vise/skjule dette panelet',
+    offlineMessage: 'Ingen internettforbindelse. Noen funksjoner kan være begrenset.',
+    poweredByDrivasFleet: 'Drevet av Drivas Fleet',
+    invalidDistance: 'Ugyldig avstand',
+    invalidDuration: 'Ugyldig varighet',
+    invalidTime: 'Ugyldig tidspunkt',
+    invalidDate: 'Ugyldig dato'
   },
   en: {
     appTitle: '{{companyName}} Calculator',
@@ -250,6 +263,19 @@ export const translations = {
       laurdag: 'Saturday',
       helgNatt: 'Weekend/Night',
       hoytid: 'Holiday',
-    }
+    },
+    keyboardShortcuts: 'Keyboard Shortcuts',
+    shortcutAdvanceField: 'Advance to next field',
+    shortcutTab: 'Navigate between fields',
+    shortcutEscape: 'Close modal/panel',
+    shortcutHelp: 'Show this help',
+    shortcutPrint: 'Print/PDF',
+    shortcutTip: 'Press ? anytime to toggle this panel',
+    offlineMessage: 'No internet connection. Some features may be limited.',
+    poweredByDrivasFleet: 'Powered by Drivas Fleet',
+    invalidDistance: 'Invalid distance',
+    invalidDuration: 'Invalid duration',
+    invalidTime: 'Invalid time',
+    invalidDate: 'Invalid date'
   }
 };

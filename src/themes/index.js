@@ -2,11 +2,11 @@
  * Theme barrel export
  *
  * Import themes and utilities from this file:
- *   import { applyTheme, vossTaxiTheme, lightCleanTheme } from '../themes';
+ *   import { applyTheme, drivasDarkTheme, lightCleanTheme } from '../themes';
  */
 
 export { themeVariables, applyTheme, removeTheme } from './themeDefaults';
-export { default as vossTaxiTheme } from './vossTaxi';
+export { default as drivasDarkTheme } from './drivasDark';
 export { default as lightCleanTheme } from './lightClean';
 
 /**
@@ -15,10 +15,10 @@ export { default as lightCleanTheme } from './lightClean';
 export const THEME_REGISTRY = {};
 
 // Lazy-load to avoid circular deps
-import vossTaxiTheme from './vossTaxi';
+import drivasDarkTheme from './drivasDark';
 import lightCleanTheme from './lightClean';
 
-THEME_REGISTRY[vossTaxiTheme.id] = vossTaxiTheme;
+THEME_REGISTRY[drivasDarkTheme.id] = drivasDarkTheme;
 THEME_REGISTRY[lightCleanTheme.id] = lightCleanTheme;
 
 /**
