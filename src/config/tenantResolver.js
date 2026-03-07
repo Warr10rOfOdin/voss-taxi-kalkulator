@@ -77,7 +77,7 @@ export async function resolveTenantAsync() {
 
   // Fall back to default tenant if still nothing
   if (!tenantId) {
-    tenantId = 'voss-taxi';
+    tenantId = 'drivas-fleet';
     console.log('[TenantResolver] Using default tenant (voss-taxi)');
   }
 
@@ -95,7 +95,7 @@ export async function resolveTenantAsync() {
   }
 
   // Fallback: use local default config if this is the default tenant
-  if (tenantId === 'voss-taxi') {
+  if (tenantId === 'drivas-fleet') {
     console.log('[TenantResolver] Using local default config for voss-taxi');
     return createTenantConfig(DEFAULT_TENANT);
   }
@@ -114,7 +114,7 @@ export async function resolveTenantAsync() {
 export function resolveTenant() {
   const { tenantId } = resolveTenantId();
 
-  if (tenantId === 'voss-taxi' || !tenantId) {
+  if (tenantId === 'drivas-fleet' || !tenantId) {
     return createTenantConfig(DEFAULT_TENANT);
   }
 

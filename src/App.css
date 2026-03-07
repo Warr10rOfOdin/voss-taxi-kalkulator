@@ -1409,3 +1409,508 @@ body::before {
     width: 22px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ENHANCED UX IMPROVEMENTS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Better input focus states with smooth transitions */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Improved button hover states */
+.btn,
+.btn-primary,
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* Ripple effect for buttons */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Enhanced card hover effects */
+.card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-card-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better loading states */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Enhanced via address animations */
+.via-address {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Improved remove button with hover effect */
+.remove-via-btn:hover {
+  background: var(--brand-danger-hover);
+  transform: scale(1.1) rotate(90deg);
+  transition: all 0.2s ease;
+}
+
+/* Better tooltip positioning */
+.help-tooltip {
+  z-index: 10001;
+}
+
+/* Enhanced price display with pulsing effect */
+.estimated-price {
+  animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Better mobile touch targets */
+@media (max-width: 768px) {
+  button,
+  input,
+  select {
+    min-height: 44px; /* iOS recommended touch target */
+  }
+  
+  .btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+
+/* Improved focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Better disabled states */
+button:disabled,
+input:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+button:disabled:hover {
+  box-shadow: none;
+}
+
+/* Enhanced skeleton loading */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    to right,
+    var(--bg-input) 0%,
+    var(--bg-input-focus) 20%,
+    var(--bg-input) 40%,
+    var(--bg-input) 100%
+  );
+  background-size: 800px 104px;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--radius-input);
+}
+
+/* Improved table hover effects */
+.tariff-table tbody tr:hover {
+  background: var(--bg-breakdown-row-hover);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+/* Better language switcher animation */
+.lang-btn {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.lang-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--brand-primary);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.lang-btn.active::after {
+  width: 80%;
+}
+
+.lang-btn:hover:not(.active) {
+  background: var(--bg-btn-outline-hover);
+}
+
+/* Enhanced hamburger menu animation */
+.hamburger-menu-btn {
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu-btn:hover {
+  transform: scale(1.1);
+  background: var(--bg-btn-secondary-hover);
+}
+
+.hamburger-line {
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu-btn:hover .hamburger-line {
+  background: var(--brand-primary);
+}
+
+/* Better map loading state */
+.map-loading {
+  position: relative;
+}
+
+.map-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    var(--bg-map) 25%,
+    var(--bg-input-focus) 50%,
+    var(--bg-map) 75%
+  );
+  background-size: 200% 200%;
+  animation: gradientShift 2s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Improved print button */
+.btn-secondary:hover {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+}
+
+/* Enhanced breakdown row animations */
+.breakdown-row {
+  animation: slideInRight 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.breakdown-row:nth-child(1) { animation-delay: 0.05s; }
+.breakdown-row:nth-child(2) { animation-delay: 0.1s; }
+.breakdown-row:nth-child(3) { animation-delay: 0.15s; }
+.breakdown-row:nth-child(4) { animation-delay: 0.2s; }
+.breakdown-row:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Better error states */
+.input-error {
+  border-color: var(--brand-danger) !important;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.error-message {
+  color: var(--brand-danger);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Improved spacing and rhythm */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Better responsive grid */
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .right-column {
+    order: 2;
+  }
+  
+  .left-column {
+    order: 1;
+  }
+}
+
+/* Enhanced success states */
+.success-indicator {
+  position: relative;
+}
+
+.success-indicator::after {
+  content: '✓';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--brand-success);
+  font-weight: bold;
+  animation: bounceIn 0.4s ease-out;
+}
+
+@keyframes bounceIn {
+  0% { transform: translateY(-50%) scale(0); }
+  50% { transform: translateY(-50%) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+
+/* Better modal entrance */
+.modal-content {
+  animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Enhanced sticky elements */
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-body-1);
+  backdrop-filter: blur(10px);
+}
+
+/* Better contrast for accessibility */
+.high-contrast {
+  filter: contrast(1.1);
+}
+
+/* Improved print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+/* Loading spinner enhancement */
+.loading-spinner {
+  animation: spin 0.8s linear infinite, pulse 2s ease-in-out infinite;
+}
+
+/* Better gradient backgrounds */
+.gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--bg-body-1) 0%,
+    var(--bg-body-2) 50%,
+    var(--bg-body-3) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradientFlow 15s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Enhanced tooltips */
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::before,
+[data-tooltip]::after {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+[data-tooltip]:hover::before,
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+/* Better form group spacing */
+.form-group + .form-group {
+  margin-top: 16px;
+}
+
+/* Enhanced container max-widths */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Improved transitions for all interactive elements */
+button,
+input,
+select,
+.card,
+.lang-btn {
+  transition-property: transform, box-shadow, background-color, border-color, opacity;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+
+/* Better visual hierarchy */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Enhanced spacing for better readability */
+p, ul, ol {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+/* Better link styles */
+a {
+  color: var(--brand-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--brand-secondary);
+  text-decoration: underline;
+}
+
+/* Improved code/pre styles if needed */
+code, pre {
+  font-family: 'Monaco', 'Courier New', monospace;
+  background: var(--bg-input);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}

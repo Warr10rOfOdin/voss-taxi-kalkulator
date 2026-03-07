@@ -18,7 +18,7 @@ export function useTariffData(tenantId) {
   const [baseTariff, setBaseTariff] = useState(DEFAULT_BASE_TARIFF_14);
 
   // Tenant-scoped localStorage key
-  const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'vossTaxiTariffs';
+  const storageKey = tenantId ? `taxiTariffs_${tenantId}` : 'drivasFleetTariffs';
 
   useEffect(() => {
     console.log(`[useTariffData] Loading tariffs for tenant: ${tenantId || 'default'}...`);

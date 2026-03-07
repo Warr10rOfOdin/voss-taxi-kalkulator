@@ -3,6 +3,7 @@ import { getTranslations } from './locales/translations';
 import { getNorwegianHolidays } from './utils/helligdager';
 import { useTenant } from './context/TenantContext';
 import { LoadingSpinner } from './components/common';
+import { Footer, InfoTooltip, KeyboardShortcutsPanel } from './components/common';
 
 // Custom hooks
 import {
@@ -155,7 +156,7 @@ function App() {
         <div className="card top-card">
           <div className="header-row">
             <div className="logo-title-group">
-              <img src={tenant?.branding?.logo || '/vosstaxi_logo_orange.png'} alt={tenant?.branding?.logoAlt || 'Taxi'} className="app-logo" />
+              <img src={tenant?.branding?.logo || '/drivas-fleet-logo.svg'} alt={tenant?.branding?.logoAlt || 'Taxi'} className="app-logo" />
               <h1>{t.appTitle}</h1>
             </div>
             {tenant?.features?.showLanguageSwitcher !== false && <div className="lang-switcher">
@@ -292,6 +293,10 @@ function App() {
             tenantId={tenant?.id}
           />
         </Suspense>
+        {/* Footer */}
+        <Footer tenant={tenant} translations={{ lang }} />
+        {/* Keyboard Shortcuts Panel */}
+        <KeyboardShortcutsPanel translations={t} />
       </div>
     </>
   );

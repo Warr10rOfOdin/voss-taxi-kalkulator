@@ -7,32 +7,37 @@
  */
 
 /**
- * Default tenant configuration (Voss Taxi)
- * Used as fallback when no tenant is matched
+ * Default tenant configuration (Drivas Fleet)
+ * Used as fallback when no tenant is matched.
+ * Generic branding that can be easily customized per tenant.
  */
 export const DEFAULT_TENANT = {
-  id: 'voss-taxi',
-  name: 'Voss Taxi',
-  slug: 'voss-taxi',
+  id: 'drivas-fleet',
+  name: 'Drivas Fleet',
+  slug: 'drivas-fleet',
 
   // Branding
   branding: {
-    companyName: 'Voss Taxi',
-    logo: '/tenants/voss-taxi/logo.png',
-    logoAlt: 'Voss Taxi',
-    favicon: '/tenants/voss-taxi/favicon.png',
+    companyName: 'Taxi',
+    logo: '/drivas-fleet-logo.svg',
+    logoAlt: 'Drivas Fleet',
+    favicon: '/favicon.svg',
     pageTitle: {
-      no: 'Voss Taxi Kalkulator',
-      en: 'Voss Taxi Calculator'
+      no: 'Taxi Prisberegner',
+      en: 'Taxi Price Calculator'
     },
     pageDescription: {
-      no: 'Prisestimat for taxiturer i Voss-regionen. Beregn taxi-pris basert på avstand, tid og kjøretøytype.',
-      en: 'Price estimate for taxi trips in the Voss region. Calculate taxi price based on distance, time and vehicle type.'
+      no: 'Beregn estimert pris for din taxitur. Proffesjonell prisberegner for taxiselskaper.',
+      en: 'Calculate estimated price for your taxi trip. Professional price calculator for taxi companies.'
     },
-    copyrightHolder: 'Voss Taxi',
+    copyrightHolder: 'Drivas Fleet',
     madeBy: {
-      no: 'Laget av Toni Kolve.',
-      en: 'Made by Toni Kolve.'
+      no: 'Del av Drivas Fleet-kjeden',
+      en: 'Part of Drivas Fleet chain'
+    },
+    poweredBy: {
+      no: 'Drevet av Drivas Fleet',
+      en: 'Powered by Drivas Fleet'
     }
   },
 
@@ -41,18 +46,18 @@ export const DEFAULT_TENANT = {
 
   // Defaults for the calculator
   defaults: {
-    startAddress: 'Hestavangen 11, Voss',
+    startAddress: '',
     lang: 'no',
     mapsCountry: 'no',
     mapsRegion: 'NO',
-    mapCenter: { lat: 60.6280, lng: 6.4118 } // Voss, Norway
+    mapCenter: { lat: 60.3913, lng: 5.3221 } // Bergen, Norway (central location)
   },
 
   // Contact info (shown in PDF footer etc.)
   contact: {
     phone: '',
     email: '',
-    website: ''
+    website: 'https://drivasfleet.no'
   },
 
   // Allowed domains for embed protection
@@ -65,7 +70,9 @@ export const DEFAULT_TENANT = {
     showPrintButton: true,
     showTariffEditor: true,
     showMap: true,
-    showTariffTable: true
+    showTariffTable: true,
+    showHelpTooltips: true,
+    showPoweredBy: true
   }
 };
 
@@ -92,6 +99,10 @@ export function createTenantConfig(partial = {}) {
       madeBy: {
         ...DEFAULT_TENANT.branding.madeBy,
         ...(partial.branding?.madeBy || {})
+      },
+      poweredBy: {
+        ...DEFAULT_TENANT.branding.poweredBy,
+        ...(partial.branding?.poweredBy || {})
       }
     },
     defaults: {
