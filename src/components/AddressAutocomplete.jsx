@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useCtrlBoard } from '../hooks';
 
 export default function AddressAutocomplete({
   value,
@@ -14,8 +15,10 @@ export default function AddressAutocomplete({
   const autocompleteRef = useRef(null);
   const internalInputRef = useRef(null);
   const initCountRef = useRef(0); // Track initialization count for debugging
+  const sessionStartTimeRef = useRef(null); // Track autocomplete session start time
   const [isLoaded, setIsLoaded] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { trackMapApiCall, reportError } = useCtrlBoard();
 
   useEffect(() => {
     // Wait for Google Maps API to be available
@@ -61,6 +64,11 @@ export default function AddressAutocomplete({
         setDropdownOpen(false); // Dropdown closes when selection is made
         let selectedAddress = '';
 
+        // Calculate session latency
+        const sessionLatency = sessionStartTimeRef.current
+          ? Date.now() - sessionStartTimeRef.current
+          : 0;
+
         if (place && place.formatted_address) {
           selectedAddress = place.formatted_address;
         } else if (place && place.name) {
@@ -68,6 +76,14 @@ export default function AddressAutocomplete({
         }
 
         if (selectedAddress) {
+          // Track successful autocomplete session
+          trackMapApiCall('places_autocomplete', sessionLatency, {
+            success: true,
+            inputId: id
+          });
+
+          // Reset session timer
+          sessionStartTimeRef.current = null;
           // Update the value
           onChange({ target: { value: selectedAddress } });
 
@@ -115,6 +131,16 @@ export default function AddressAutocomplete({
       });
     } catch (error) {
       console.error('Failed to initialize Google Places Autocomplete:', error);
+
+      // Report initialization error as incident
+      reportError(error, {
+        source: `AddressAutocomplete.jsx:${id}`,
+        severity: 'error',
+        metadata: {
+          component: id,
+          apiKey: apiKey ? 'present' : 'missing'
+        }
+      });
     }
 
     return () => {
@@ -170,8 +196,13 @@ export default function AddressAutocomplete({
     // If user is typing, dropdown will open with suggestions
     if (e.target.value.length > 0) {
       setDropdownOpen(true);
+      // Start autocomplete session timer on first character
+      if (!sessionStartTimeRef.current) {
+        sessionStartTimeRef.current = Date.now();
+      }
     } else {
       setDropdownOpen(false);
+      sessionStartTimeRef.current = null;
     }
     onChange(e);
   };

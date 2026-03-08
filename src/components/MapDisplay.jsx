@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
+import { useCtrlBoard } from '../hooks';
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -22,9 +23,12 @@ export default function MapDisplay({
   const directionsRendererRef = useRef(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(null);
+  const { trackMapApiCall, reportError } = useCtrlBoard();
 
   // Initialize Google Maps (only once, regardless of prop changes)
   useEffect(() => {
+    const startTime = Date.now();
+
     // If the loader hasn't been created yet, create it with initial settings
     if (!mapsLoaderPromise) {
       const loader = new Loader({
@@ -39,6 +43,8 @@ export default function MapDisplay({
 
     // Use the existing loader promise (singleton pattern)
     mapsLoaderPromise.then(() => {
+      const loadLatency = Date.now() - startTime;
+
       if (mapContainerRef.current && !mapInstanceRef.current) {
         mapInstanceRef.current = new window.google.maps.Map(mapContainerRef.current, {
           center: mapCenter,
@@ -58,10 +64,29 @@ export default function MapDisplay({
         });
 
         setMapLoaded(true);
+
+        // Track successful Maps API initialization
+        trackMapApiCall('maps_js', loadLatency, { success: true });
       }
     }).catch(err => {
+      const loadLatency = Date.now() - startTime;
       console.error('Google Maps failed to load:', err);
       setMapError(err.message);
+
+      // Track Maps API initialization failure
+      trackMapApiCall('maps_js', loadLatency, {
+        success: false,
+        error: err.message
+      });
+
+      // Report as incident
+      reportError(err, {
+        source: 'MapDisplay.jsx:Maps API initialization',
+        severity: 'error',
+        metadata: {
+          apiKey: GOOGLE_MAPS_API_KEY ? 'present' : 'missing'
+        }
+      });
     });
 
     return () => {
@@ -121,7 +146,11 @@ export default function MapDisplay({
       optimizeWaypoints: false
     };
 
+    const requestStartTime = Date.now();
+
     directionsService.route(request, (result, status) => {
+      const requestLatency = Date.now() - requestStartTime;
+
       if (status === window.google.maps.DirectionsStatus.OK) {
         directionsRendererRef.current.setDirections(result);
 
@@ -140,12 +169,40 @@ export default function MapDisplay({
 
         console.log(`[MapDisplay] Route calculated: ${distanceKm.toFixed(2)} km, ${durationMin} min`);
 
+        // Track successful Directions API call
+        trackMapApiCall('directions', requestLatency, {
+          success: true,
+          distance: distanceKm,
+          duration: durationMin,
+          waypoints: waypoints.length
+        });
+
         if (onRouteCalculated) {
           onRouteCalculated(distanceKm, durationMin);
         }
       } else {
         console.error(`[MapDisplay] Directions API request failed: ${status}`);
         directionsRendererRef.current.setDirections({ routes: [] });
+
+        // Track failed Directions API call
+        trackMapApiCall('directions', requestLatency, {
+          success: false,
+          error: status
+        });
+
+        // Report as incident if it's not a user input error
+        if (status !== 'ZERO_RESULTS') {
+          reportError(new Error(`Directions API failed: ${status}`), {
+            source: 'MapDisplay.jsx:Directions API',
+            severity: 'warning',
+            metadata: {
+              status,
+              origin: startAddress,
+              destination: destAddress,
+              waypoints: waypoints.length
+            }
+          });
+        }
       }
     });
   }, [mapLoaded, routeTrigger]);
