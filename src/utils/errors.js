@@ -5,6 +5,7 @@
  */
 
 import { logger } from './logger';
+import ctrlboard, { getCurrentTenantId } from './ctrlboard';
 
 /**
  * Custom error classes for specific error types
@@ -152,19 +153,60 @@ export function getUserFriendlyMessage(error, translations) {
 }
 
 /**
- * Report an error to an external service (e.g., Sentry)
- * Placeholder for future integration
+ * Report an error to CTRL BOARD and log to console
  *
  * @param {Error} error - The error to report
  * @param {Object} context - Additional context
+ * @param {string} [context.componentStack] - React component stack trace
+ * @param {string} [context.boundary] - Error boundary name
+ * @param {string} [context.severity] - Error severity (critical, error, warning, info)
  */
 export function reportError(error, context = {}) {
-  // In production, this would send to Sentry/similar
-  // For now, just log to console
+  // Log to console
   logger.error('[ErrorReporting]', 'Error:', error, 'Context:', context);
 
-  // Future: integrate with Sentry
-  // if (window.Sentry) {
-  //   window.Sentry.captureException(error, { extra: context });
-  // }
+  // Report to CTRL BOARD if available
+  if (ctrlboard) {
+    try {
+      // Determine severity based on error type and context
+      let severity = context.severity || 'error';
+
+      // Critical errors: React errors, Firebase permission errors
+      if (context.componentStack || error.name === 'FirebaseError') {
+        severity = 'critical';
+      }
+
+      // Warnings: Network errors, validation errors
+      if (error.name === 'NetworkError' || error.name === 'ValidationError') {
+        severity = 'warning';
+      }
+
+      const incident = {
+        severity,
+        title: `${error.name || 'Error'}: ${error.message || 'Unknown error'}`,
+        description: error.stack || error.toString(),
+        source: context.boundary || 'Unknown',
+        metadata: {
+          tenantId: getCurrentTenantId(),
+          errorName: error.name,
+          errorMessage: error.message,
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          ...context,
+          // Remove functions from metadata
+          componentStack: context.componentStack?.toString(),
+          originalError: error.originalError?.toString()
+        }
+      };
+
+      ctrlboard.reportIncident(incident);
+
+      if (import.meta.env.DEV) {
+        logger.debug('[ErrorReporting]', 'Reported to CTRL BOARD:', severity, error.message);
+      }
+    } catch (reportingError) {
+      // Don't let reporting errors break the app
+      logger.error('[ErrorReporting]', 'Failed to report to CTRL BOARD:', reportingError);
+    }
+  }
 }

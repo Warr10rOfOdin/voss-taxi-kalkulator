@@ -10,3 +10,4 @@ export { useTripParameters } from './useTripParameters';
 export { useRouteCalculation } from './useRouteCalculation';
 export { useOnlineStatus } from './useOnlineStatus';
 export { useFormValidation } from './useFormValidation';
+export { useCtrlBoard } from './useCtrlBoard';
