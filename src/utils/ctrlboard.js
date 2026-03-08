@@ -8,7 +8,7 @@
  */
 
 import { CtrlBoard, getCurrentTenantId } from './ctrlboardSDK';
-import logger from './logger';
+import { logger } from './logger';
 
 // Check if CTRL BOARD is enabled
 const enabled = import.meta.env.VITE_CTRL_BOARD_ENABLED === 'true';

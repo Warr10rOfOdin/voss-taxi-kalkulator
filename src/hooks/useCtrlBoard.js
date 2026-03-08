@@ -9,7 +9,7 @@
 
 import { useCallback } from 'react';
 import ctrlboard, { getCurrentTenantId, isCtrlBoardEnabled } from '../utils/ctrlboard';
-import logger from '../utils/logger';
+import { logger } from '../utils/logger';
 
 /**
  * Hook for CTRL BOARD monitoring and tracking
