@@ -1,197 +1,312 @@
-# CTRL BOARD Documentation
+# Voss Taxi Kalkulator
 
-Welcome to **CTRL BOARD** — the universal admin, monitoring, and billing hub for managing multiple SaaS applications from a single command center.
+A white-label, multi-tenant web application for calculating and displaying taxi prices. Originally built for Voss Taxi in Norway, now configurable for any taxi company with custom branding, theming, and regional settings.
 
-## What is CTRL BOARD?
+![Voss Taxi Calculator](https://img.shields.io/badge/React-18.3-blue) ![Vite](https://img.shields.io/badge/Vite-5.4-purple) ![License](https://img.shields.io/badge/License-MIT-green) ![Multi--Tenant](https://img.shields.io/badge/Multi--Tenant-SaaS-orange)
 
-CTRL BOARD is a Next.js-based **multi-app management platform** that gives you centralized control over every application in your ecosystem. Connect any app — regardless of tech stack — and instantly get:
+## Features
 
-- **Real-time monitoring** — health, uptime, latency, and incident tracking
-- **Usage analytics** — API calls, user traffic, DAU, sessions, and growth trends
-- **Cost management** — track spending across 11+ providers, set alerts, forecast budgets
-- **Billing & invoicing** — generate invoices, sync live data from Stripe/QuickBooks/Xero
-- **Customer administration** — manage tenants with per-customer branding, themes, and feature flags
-- **SDK & API** — drop-in TypeScript/Python SDKs with auto-instrumentation for Next.js and Express
+### Core Calculator Features
+- 🗺️ **Google Maps Integration** - Automatic route calculation with distance and duration
+- 🔍 **Address Autocomplete** - Dropdown suggestions for addresses powered by Google Places API
+- 📍 **Via Points** - Add multiple intermediate stops to your route
+- 💰 **Real-time Price Calculation** - Based on Norwegian taxi tariff regulations
+- 📊 **Tariff Breakdown** - See how price is distributed across different tariff periods
+- 🌐 **Bilingual Support** - Norwegian and English interface
+- 🖨️ **Professional PDF Export** - Generate official-looking price estimates
+- ⏰ **Time-based Tariffs** - Automatic switching between Day, Evening, Saturday, Weekend/Night, and Holiday rates
+- 🎉 **Norwegian Holidays** - Automatic detection of 12 public holidays with høytid (holiday) tariff applied
+- 👥 **Vehicle Groups** - Support for 1-4, 5-6, 7-8, and 9-16 seat vehicles
+- ✏️ **Editable Tariffs** - Password-protected tariff editor
+- 📱 **Mobile Optimized** - Responsive design for all screen sizes
 
-## App Ecosystem
+### Multi-Tenant SaaS Features
+- 🏢 **White-Label Branding** - Custom logo, company name, colors, and page metadata per tenant
+- 🎨 **Themeable UI** - 60+ CSS variables for complete visual customization
+- 🌍 **Regional Configuration** - Tenant-specific map center, country, language, and default addresses
+- 🔐 **Data Isolation** - Tenant-scoped Firebase paths and localStorage keys
+- 🌐 **Custom Domains** - Support for custom domains and subdomains per tenant
+- 🛡️ **Embed Protection** - Domain validation and iframe security headers
+- 🚦 **Feature Flags** - Enable/disable features per tenant (language switcher, print, tariff editor, map, etc.)
+- 📊 **Multi-Tenant Analytics** - Separate data tracking per tenant
 
-| App | Description | Stack |
-|-----|-------------|-------|
-| **CTRL BOARD** | Central admin & monitoring platform (this app) | Next.js 15, Supabase, Firebase |
-| **Voss Taxi Kalkulator** | White-label multi-tenant taxi fare calculator | React 18, Vite, Firebase, Google Maps |
-| **Drivas Fleet** | Fleet management & local taxi operations | Next.js, Firebase |
+**📖 See [TENANTS.md](./TENANTS.md) for complete multi-tenant configuration guide**
 
-The platform scales to any number of apps. Register a new app and it automatically inherits universal features (monitoring, branding, themes, billing).
+## Quick Start
 
-## Documentation Index
+### Prerequisites
 
-### Platform Docs
+- Node.js 18+ 
+- npm or yarn
 
-| Document | Purpose |
-|----------|---------|
-| [API_INTEGRATION.md](./API_INTEGRATION.md) | **Start here** — connect your app using the SDK or REST API |
-| [APP_ADMINISTRATION.md](./APP_ADMINISTRATION.md) | Customer management, branding, themes, user controls, feature flags |
-| [FEATURES.md](./FEATURES.md) | Complete feature reference for every section of the platform |
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, database schema, multi-tenant architecture |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | Setup, configuration, and deployment instructions |
-
-### Integration Guides (For Any App Developer)
-
-| Document | What You'll Learn |
-|----------|-------------------|
-| [integration/INDEX.md](./integration/INDEX.md) | Start here — overview and reading order |
-| [integration/WHAT_IS_CTRL_BOARD.md](./integration/WHAT_IS_CTRL_BOARD.md) | What CTRL BOARD is, its vision, and what your app gains |
-| [integration/GETTING_STARTED.md](./integration/GETTING_STARTED.md) | Step-by-step guide to connect your app |
-| [integration/API_REFERENCE.md](./integration/API_REFERENCE.md) | Complete SDK methods, REST endpoints, webhooks, SSE |
-| [integration/APP_PROFILE_TEMPLATE.md](./integration/APP_PROFILE_TEMPLATE.md) | Template to document your app's integration |
-
-## Quick Start for App Developers
-
-### 1. Register Your App
-
-Go to **Apps > Add App** in the CTRL BOARD dashboard, or register via the SDK:
-
-```typescript
-import { CtrlBoard } from "@ctrlboard/sdk";
-
-const client = new CtrlBoard({
-  apiKey: "drivas_live_...",
-  baseUrl: "https://your-ctrl-board.vercel.app",
-});
-
-const { data } = await client.registerApp({
-  name: "My App",
-  environment: "production",
-});
-
-console.log("App ID:", data.id);
-console.log("API Key:", data.api_key);
-```
-
-### 2. Install the SDK
+### Installation
 
 ```bash
-npm install @ctrlboard/sdk
+# Clone the repository
+git clone https://github.com/yourusername/voss-taxi-kalkulator.git
+cd voss-taxi-kalkulator
+
+# Install dependencies
+npm install
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env and add your Google Maps API key
+
+# Start development server
+npm run dev
 ```
 
-### 3. Initialize and Start Sending Data
+The app will be available at `http://localhost:3000`
 
-```typescript
-const client = new CtrlBoard({
-  apiKey: "drivas_live_...",
-  baseUrl: "https://your-ctrl-board.vercel.app",
-  appId: "your-app-id",
-  heartbeat: true,           // auto-send health pings every 60s
-  heartbeatInterval: 60000,
-});
+### Build for Production
 
-// Track an API call
-client.trackClaude({
-  model: "claude-sonnet-4-20250514",
-  inputTokens: 1500,
-  outputTokens: 500,
-  cost: 0.012,
-  latencyMs: 450,
-});
-
-// Report a billing event
-await client.trackBillingEvent({
-  provider: "stripe",
-  type: "charge",
-  amount: 49.99,
-  currency: "USD",
-  description: "Pro plan — March 2026",
-});
-
-// Graceful shutdown
-await client.shutdown();
+```bash
+npm run build
 ```
 
-### 4. Add Auto-Instrumentation (Optional)
+The production build will be in the `dist` folder.
 
-**Next.js App Router:**
-```typescript
-import { withCtrlBoardApp } from "@ctrlboard/sdk";
+## Deployment to Vercel
 
-export const GET = withCtrlBoardApp(client, async (request) => {
-  return Response.json({ ok: true });
-});
+### Option 1: Deploy via Vercel CLI
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
 ```
 
-**Express.js:**
-```typescript
-import { ctrlBoardMiddleware } from "@ctrlboard/sdk";
+### Option 2: Deploy via GitHub
 
-app.use(ctrlBoardMiddleware(client, {
-  ignorePaths: ["/health", "/favicon.ico"],
-}));
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com)
+3. Click "New Project"
+4. Import your GitHub repository
+5. Vercel will auto-detect Vite and configure the build settings
+6. Click "Deploy"
+
+The app will be live at `https://your-project.vercel.app`
+
+## Project Structure
+
+```
+voss-taxi-kalkulator/
+├── public/
+│   ├── tenants/                     # Tenant-specific assets
+│   │   └── voss-taxi/
+│   │       ├── logo.png             # Tenant logo
+│   │       └── favicon.png          # Tenant favicon
+│   └── taxi-icon.svg
+├── src/
+│   ├── components/                  # React components
+│   │   ├── AddressAutocomplete.jsx
+│   │   ├── AddressInputSection.jsx
+│   │   ├── EstimatedPriceCard.jsx   # Price estimate with breakdown
+│   │   ├── HelpTooltip.jsx          # Help icons with tooltips
+│   │   ├── MapDisplay.jsx           # Google Maps integration
+│   │   ├── PrintOffer.jsx           # PDF/Print document
+│   │   ├── TariffEditorModal.jsx    # Edit base tariffs
+│   │   ├── TariffTable.jsx          # 4x5 price grid
+│   │   └── TripParametersSection.jsx
+│   ├── config/                      # Multi-tenant configuration
+│   │   ├── firebase.config.js       # Firebase with tenant paths
+│   │   ├── tenantResolver.js        # Tenant detection logic
+│   │   └── tenantSchema.js          # Tenant config schema
+│   ├── context/
+│   │   └── TenantContext.jsx        # Tenant state provider
+│   ├── hooks/                       # Custom React hooks
+│   │   ├── useAddressInputs.js
+│   │   ├── useRouteCalculation.js
+│   │   ├── useTariffData.js         # Tenant-scoped tariff storage
+│   │   ├── useTripParameters.js
+│   │   └── index.js
+│   ├── locales/
+│   │   └── translations.js          # NO/EN with template resolution
+│   ├── themes/                      # Theme system
+│   │   ├── themeDefaults.js         # 60+ CSS variables
+│   │   ├── vossTaxi.js              # Default dark theme
+│   │   ├── lightClean.js            # Light theme alternative
+│   │   └── index.js
+│   ├── utils/
+│   │   ├── helligdager.js           # Norwegian holidays calculator
+│   │   └── tariffCalculator.js      # Core pricing logic
+│   ├── App.css                      # CSS with variable references
+│   ├── App.jsx                      # Main application
+│   └── main.jsx                     # React entry point
+├── CLAUDE.md                        # AI assistant development guide
+├── TENANTS.md                       # Multi-tenant configuration guide
+├── index.html
+├── package.json
+├── vercel.json                      # Vercel config with security headers
+├── vite.config.js
+└── README.md
 ```
 
-### 5. View Your Data
+## Tariff Calculation
 
-Open the CTRL BOARD dashboard. Your app now appears with:
-- Live health status (green/yellow/red)
-- API usage charts and cost tracking
-- User traffic analytics
-- Incident history
+The pricing follows official Norwegian taxi tariff regulations:
 
-## What Each App Gets from CTRL BOARD
+### Base Tariffs (1-4 seats, Day)
+- Start price: 97 NOK
+- Per km (0-10 km): 11.14 NOK
+- Per km (>10 km): 21.23 NOK
+- Per minute: 8.42 NOK
 
-### Universal Features (Every Connected App)
+### Period Multipliers
+- Day (Mon-Fri 06:00-18:00): 1.0x
+- Evening (Mon-Fri 18:00-24:00): 1.21x
+- Saturday (Sat 06:00-15:00): 1.3x
+- Weekend/Night (Sat 15:00-Mon 06:00): 1.35x
+- Holidays: 1.45x
 
-| Feature | Description |
-|---------|-------------|
-| **Health Monitoring** | Automatic heartbeat, uptime tracking, incident alerts |
-| **API Analytics** | Request volume, latency percentiles, error rates, cost per call |
-| **User Metrics** | DAU, new signups, sessions, retention |
-| **Cost Tracking** | Per-provider spend, budget alerts, anomaly detection |
-| **Billing Events** | Charges, refunds, credits with full audit trail |
-| **Webhooks** | Real-time notifications for 9 event types |
-| **Customer Branding** | Per-tenant logos, favicons, company names, page titles |
-| **Theme Customization** | 60+ CSS variables, color presets, per-customer themes |
-| **Feature Flags** | Toggle UI components per customer without redeploy |
-| **Domain Restrictions** | Control which domains can access each customer's instance |
-| **Regional Settings** | Language, timezone, map center, currency per customer |
-| **Real-time SSE** | Live metric streams, config change notifications, alerts |
+### Norwegian Public Holidays (Høytid Tariff)
 
-### App-Specific Extensions
+The system automatically applies the høytid (holiday) tariff on these 12 Norwegian public holidays:
 
-Individual apps can add custom configuration on top of universal features:
-- **Taxi Calculator** — tariff rates, vehicle multipliers, period pricing
-- **Fleet App** — vehicle types, insurance, maintenance schedules
-- **Your App** — any custom settings stored in Firebase per customer
+**Fixed Holidays:**
+- Nyttårsdag (New Year's Day) - January 1
+- Arbeidernes dag (Labour Day) - May 1
+- Grunnlovsdag (Constitution Day) - May 17
+- 1. juledag (Christmas Day) - December 25
+- 2. juledag (Boxing Day) - December 26
 
-## Technology Stack
+**Moveable Holidays (calculated from Easter):**
+- Skjærtorsdag (Maundy Thursday) - 3 days before Easter
+- Langfredag (Good Friday) - 2 days before Easter
+- Påskedag (Easter Sunday)
+- 2. påskedag (Easter Monday) - 1 day after Easter
+- Kristi himmelfartsdag (Ascension Day) - 39 days after Easter
+- Pinsedag (Whit Sunday) - 49 days after Easter
+- 2. pinsedag (Whit Monday) - 50 days after Easter
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend/Backend | Next.js 15, React 19, TypeScript 5.7 |
-| SQL Database | Supabase (PostgreSQL) with RLS |
-| NoSQL Database | Firebase Realtime Database |
-| Authentication | NextAuth.js v5 (GitHub, Google, credentials) |
-| Error Tracking | Sentry |
-| Deployment | Vercel with CI/CD |
-| Styling | Tailwind CSS with custom Sith theme |
-| SDKs | TypeScript (`@ctrlboard/sdk`), Python (`ctrlboard`) |
+Holidays are automatically calculated using the Computus algorithm for years 2024-2027.
 
-## Getting Started by Role
+### Vehicle Group Multipliers
+- 1-4 seats: 1.0x
+- 5-6 seats: 1.3x
+- 7-8 seats: 1.6x
+- 9-16 seats: 2.0x
 
-### App Developers
-1. Read your app's integration guide in [integration/](./integration/INDEX.md)
-2. Read [API_INTEGRATION.md](./API_INTEGRATION.md) — SDK setup, endpoints, examples
-3. Review [ARCHITECTURE.md](./ARCHITECTURE.md) — understand the data flow
+**Note:** The minute rate only scales by period, not by vehicle group.
 
-### Platform Administrators
-1. Read [APP_ADMINISTRATION.md](./APP_ADMINISTRATION.md) — customer management, branding, themes
-2. Review [FEATURES.md](./FEATURES.md) — complete feature reference
-3. See the full [integration guides](./integration/INDEX.md)
+## Multi-Tenant Setup
 
-### DevOps / Deployment
-1. Start with [DEPLOYMENT.md](./DEPLOYMENT.md) — environment setup, credentials
-2. Review [ARCHITECTURE.md](./ARCHITECTURE.md) — database schema, infrastructure
+This application supports serving multiple taxi companies from a single codebase. Each tenant gets custom branding, theming, and regional configuration.
 
----
+### Quick Start for New Tenants
 
-**Version**: 2.3.0
-**Last Updated**: March 2026
-**Repository**: https://github.com/Warr10rOfOdin/Main-control-board
+1. **Add tenant configuration** in `src/config/tenantResolver.js`
+2. **Upload tenant assets** to `public/tenants/{tenant-id}/`
+3. **Configure domain mapping** (optional for custom domains)
+4. **Test with** `?tenant={tenant-id}` query parameter
+
+**📖 Complete Guide:** See [TENANTS.md](./TENANTS.md) for detailed instructions on adding tenants, theme customization, feature flags, domain setup, and deployment.
+
+### Example: Access Different Tenants
+
+```bash
+# Default tenant (Voss Taxi)
+https://yourdomain.com
+
+# Via query parameter
+https://yourdomain.com/?tenant=bergen-taxi
+
+# Via subdomain
+https://bergen-taxi.yourdomain.com
+
+# Via custom domain
+https://bergentaxi.no
+```
+
+## Configuration
+
+### Google Maps API Key
+
+The Google Maps API key is configured via environment variables for security. To set it up:
+
+1. Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` and add your Google Maps API key:
+   ```
+   VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
+   ```
+
+3. Get your API key from [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
+
+4. **Important:** Restrict your API key in Google Cloud Console:
+   - Set HTTP referrer restrictions for your domain
+   - Enable only the required APIs: Maps JavaScript API and Places API
+
+**Note:** The `.env` file is git-ignored for security. Never commit API keys to version control.
+
+### Tariff Editor Password
+
+The tariff editor is password-protected. The default password is `Hestavangen11`.
+
+**⚠️ Security Note**: This is client-side authentication only and provides minimal security. Anyone with browser dev tools can bypass it. For production use with sensitive pricing data, consider implementing a proper backend API with server-side authentication.
+
+To change the password, edit the `VITE_TARIFF_PASSWORD` in your `.env` file:
+```
+VITE_TARIFF_PASSWORD=your_custom_password
+```
+
+## Usage
+
+1. **Enter Route** - Type start address and destination
+2. **Add Via Points** (optional) - Click "Add via point" for intermediate stops
+3. **Set Parameters** - Adjust km, minutes, date, time, and vehicle group
+4. **View Results** - See estimated price and tariff table
+5. **Print/PDF** - Click "Print/Save as PDF" for official estimate document
+
+### Keyboard Shortcuts
+
+- Press **Enter** in address fields to move to the next field
+- Press **Enter** in km field to move to minutes
+- Press **Enter** in minutes field to move to date
+
+## Print Output
+
+The PDF/Print feature generates a professional document including:
+
+- Company logo and header
+- Route information (from/via/to)
+- Trip details (group, period, distance, time)
+- Highlighted estimated price
+- Detailed tariff breakdown
+- **Important disclaimer** stating it's an estimate only
+
+## Development
+
+```bash
+# Run development server with hot reload
+npm run dev
+
+# Lint code
+npm run lint
+
+# Preview production build
+npm run preview
+```
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 90+
+- Safari 14+
+- Edge 90+
+
+## License
+
+MIT License - see LICENSE file
+
+## Credits
+
+Created by Toni Kolve / Kolve ST
+
+© 2025 Voss Taxi Kalkulator
