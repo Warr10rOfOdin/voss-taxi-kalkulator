@@ -281,6 +281,125 @@ The PDF/Print feature generates a professional document including:
 - Detailed tariff breakdown
 - **Important disclaimer** stating it's an estimate only
 
+## CTRL BOARD Integration
+
+**New!** Voss Taxi Kalkulator includes built-in monitoring and analytics via [CTRL BOARD](https://github.com/yourusername/ctrl-board).
+
+### What Gets Tracked
+
+- ✅ **Health Monitoring** - Automatic heartbeats every 60 seconds
+- ✅ **API Cost Tracking** - Google Maps API usage (Directions + Places) with cost data
+- ✅ **Error Reporting** - Automatic incident reporting for all errors
+- ✅ **Multi-Tenant Analytics** - Per-tenant usage and cost breakdown
+- ✅ **Performance Metrics** - API latency and route calculation times
+
+### Features
+
+| Feature | Description | Dashboard View |
+|---------|-------------|----------------|
+| **Heartbeats** | Real-time uptime monitoring | Green/Red status indicator |
+| **API Costs** | Google Maps API cost tracking | Cost per tenant, daily trends |
+| **Incidents** | Error and warning reporting | Severity levels, stack traces |
+| **User Metrics** | Calculations performed, prints | DAU, engagement metrics |
+
+### Setup
+
+1. **Deploy CTRL BOARD** (or use existing instance)
+2. **Register app** in CTRL BOARD dashboard
+3. **Add environment variables**:
+
+```env
+# CTRL BOARD Integration
+VITE_CTRL_BOARD_URL=https://your-ctrl-board.vercel.app
+VITE_CTRL_BOARD_API_KEY=drivas_live_your_api_key
+VITE_CTRL_BOARD_APP_ID=voss-taxi-kalkulator-prod
+VITE_CTRL_BOARD_ENABLED=true  # Set to false to disable
+```
+
+4. **Deploy and monitor!**
+
+### Cost Tracking Example
+
+After 100 calculations:
+
+| API | Requests | Cost/Request | Total |
+|-----|----------|--------------|-------|
+| Google Directions | 100 | $0.005 | $0.50 |
+| Google Places Autocomplete | 400 | $0.00283 | $1.13 |
+| **Total** | **500** | | **$1.63** |
+
+### Documentation
+
+- 📖 **[Integration Guide](docs/CTRL_BOARD_INTEGRATION.md)** - Complete technical documentation
+- 🧪 **[Testing Guide](docs/TESTING_GUIDE.md)** - Comprehensive testing procedures
+- 🚀 **[Setup Guide](integration/SETUP_GUIDE.md)** - Step-by-step setup instructions
+- 📊 **[App Profile](integration/VOSS_TAXI_PROFILE.md)** - Application overview and specs
+
+### Privacy & GDPR
+
+CTRL BOARD integration is **privacy-safe** and **GDPR compliant**:
+
+- ❌ **No PII tracked** - No user addresses, names, or identifiers
+- ✅ **Aggregate metrics only** - Distance, duration, calculation counts
+- ✅ **IP anonymization** - Server-side IP masking
+- ✅ **90-day retention** - Automatic data cleanup
+- ✅ **Opt-out available** - Feature flag to disable tracking
+
+### Disabling Tracking
+
+To disable CTRL BOARD integration:
+
+```env
+# In .env or Vercel environment variables
+VITE_CTRL_BOARD_ENABLED=false
+```
+
+## Environment Variables
+
+All environment variables must be prefixed with `VITE_` to be exposed to the client (Vite requirement).
+
+### Required Variables
+
+```env
+# Google Maps API
+VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+# Get from: https://console.cloud.google.com/google/maps-apis
+# Required APIs: Maps JavaScript API, Places API, Directions API
+
+# Firebase Configuration
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
+VITE_FIREBASE_DATABASE_URL=https://your-project.firebasedatabase.app
+```
+
+### Optional Variables
+
+```env
+# Tariff Editor Password (optional, defaults to 'Hestavangen11')
+VITE_TARIFF_PASSWORD=your_admin_password_here
+
+# CTRL BOARD Integration (optional)
+VITE_CTRL_BOARD_URL=https://your-ctrl-board.vercel.app
+VITE_CTRL_BOARD_API_KEY=drivas_live_your_api_key
+VITE_CTRL_BOARD_APP_ID=your-app-id
+VITE_CTRL_BOARD_ENABLED=true  # Set to false to disable tracking
+```
+
+### Setting Environment Variables in Vercel
+
+1. Go to **Vercel Dashboard** → **Your Project**
+2. Click **Settings** → **Environment Variables**
+3. Add each variable for **Production** environment
+4. Optionally add for **Preview** and **Development** environments
+5. Trigger a redeploy for changes to take effect
+
+**Security:** Never commit `.env` files to git. The `.env.example` file documents required variables without exposing secrets.
+
 ## Development
 
 ```bash
