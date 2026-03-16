@@ -1356,19 +1356,48 @@ body::before {
 
   /* Improve table readability on mobile */
   .tariff-table {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    min-width: 100%;
   }
 
   .tariff-table th,
   .tariff-table td {
-    padding: 6px 4px;
-    font-size: 0.75rem;
+    padding: 10px 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .tariff-table th:first-child,
+  .tariff-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 90px;
   }
 
   /* Horizontal scroll for tariff table */
   .tariff-grid {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Make tariff table header sticky on scroll */
+  .tariff-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  /* Improve tariff notes readability */
+  .tariff-notes {
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+
+  .tariff-notes p {
+    margin-bottom: 8px;
   }
 
   /* Help tooltips - better positioning on mobile */

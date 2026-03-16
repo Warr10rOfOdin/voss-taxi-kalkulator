@@ -224,6 +224,8 @@ function App() {
 
             {tenant?.features?.showTariffTable !== false && (
               <TariffTable
+                km={parseFloat(tripParams.distanceKm) || 0}
+                minutes={parseInt(tripParams.durationMin) || 0}
                 baseTariff14={baseTariff}
                 vehicleGroup={tripParams.vehicleGroup}
                 translations={t}
