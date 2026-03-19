@@ -60,6 +60,14 @@ export const DEFAULT_TENANT = {
     website: 'https://drivasfleet.no'
   },
 
+  // Distant pickup warning (shown when pickup > threshold km from central)
+  distanceWarning: {
+    enabled: true,
+    thresholdKm: 15, // Show warning if pickup is farther than this
+    centralAddress: '', // Empty = use defaults.startAddress
+    showContactButton: true
+  },
+
   // Allowed domains for embed protection
   // If empty, domain validation is disabled (allow all)
   allowedDomains: [],
@@ -112,6 +120,10 @@ export function createTenantConfig(partial = {}) {
     contact: {
       ...DEFAULT_TENANT.contact,
       ...(partial.contact || {})
+    },
+    distanceWarning: {
+      ...DEFAULT_TENANT.distanceWarning,
+      ...(partial.distanceWarning || {})
     },
     features: {
       ...DEFAULT_TENANT.features,

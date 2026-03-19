@@ -228,21 +228,48 @@ function App() {
               showPrintButton={tenant?.features?.showPrintButton !== false}
             />
 
-            {/* Distant Pickup Warning (>15km from central) */}
-            {distanceFromCentral > 15 && (
-              <div className="card warning-card distant-pickup-warning">
-                <div className="warning-header">
-                  <svg className="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                  </svg>
-                  <span className="warning-title">{t.distantPickupTitle}</span>
+            {/* Distant Pickup Warning (configurable threshold per tenant) */}
+            {(() => {
+              const warningConfig = tenant?.distanceWarning || {};
+              const enabled = warningConfig.enabled !== false; // Default true
+              const thresholdKm = warningConfig.thresholdKm || 15; // Default 15km
+              const showButton = warningConfig.showContactButton !== false; // Default true
+              const shouldShowWarning = enabled && distanceFromCentral > thresholdKm;
+
+              if (!shouldShowWarning) return null;
+
+              // Determine contact link (prefer phone, fallback to email)
+              const contactPhone = tenant?.contact?.phone;
+              const contactEmail = tenant?.contact?.email;
+              const contactLink = contactPhone
+                ? `tel:${contactPhone.replace(/\s/g, '')}`
+                : contactEmail
+                ? `mailto:${contactEmail}`
+                : null;
+
+              return (
+                <div className="card warning-card distant-pickup-warning">
+                  <div className="warning-header">
+                    <svg className="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span className="warning-title">{t.distantPickupTitle}</span>
+                  </div>
+                  <p className="warning-text">{t.distantPickupWarning}</p>
+                  <p className="warning-distance">
+                    {t.avstand}: {distanceFromCentral.toFixed(1)} km {lang === 'no' ? 'frå sentral' : 'from central'}
+                  </p>
+                  {showButton && contactLink && (
+                    <a href={contactLink} className="btn btn-warning-contact">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                      </svg>
+                      {t.contactUs}
+                    </a>
+                  )}
                 </div>
-                <p className="warning-text">{t.distantPickupWarning}</p>
-                <p className="warning-distance">
-                  {t.avstand}: {distanceFromCentral.toFixed(1)} km {lang === 'no' ? 'frå sentral' : 'from central'}
-                </p>
-              </div>
-            )}
+              );
+            })()}
 
             {tenant?.features?.showTariffTable !== false && (
               <TariffTable
@@ -269,7 +296,11 @@ function App() {
                 lang={lang}
                 mapCenter={tenant?.defaults?.mapCenter || { lat: 60.6280, lng: 6.4118 }}
                 mapRegion={tenant?.defaults?.mapsRegion || 'NO'}
-                centralAddress={tenant?.defaults?.startAddress || 'Hestavangen 11, 5700 Voss'}
+                centralAddress={
+                  tenant?.distanceWarning?.centralAddress ||
+                  tenant?.defaults?.startAddress ||
+                  'Hestavangen 11, 5700 Voss'
+                }
               />
             </div>
           )}
