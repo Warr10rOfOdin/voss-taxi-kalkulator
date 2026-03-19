@@ -12,11 +12,13 @@ export default function MapDisplay({
   destAddress,
   viaAddresses = [],
   onRouteCalculated,
+  onDistanceFromCentral, // New: callback for distance from central location
   routeTrigger,
   translations,
   lang = 'no',
   mapCenter = { lat: 60.6280, lng: 6.4118 }, // Default to Voss, Norway
-  mapRegion = 'NO'
+  mapRegion = 'NO',
+  centralAddress = 'Hestavangen 11, 5700 Voss' // Central location for distance warning
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -206,6 +208,48 @@ export default function MapDisplay({
       }
     });
   }, [mapLoaded, routeTrigger]);
+
+  // Calculate distance from start address to central location (for pickup fee warning)
+  useEffect(() => {
+    if (!mapLoaded || !mapInstanceRef.current) {
+      return;
+    }
+
+    if (!startAddress || !onDistanceFromCentral) {
+      return;
+    }
+
+    console.log(`[MapDisplay] Calculating distance from central: ${centralAddress} → ${startAddress}`);
+
+    const distanceService = new window.google.maps.DistanceMatrixService();
+
+    const request = {
+      origins: [centralAddress],
+      destinations: [startAddress],
+      travelMode: window.google.maps.TravelMode.DRIVING,
+      unitSystem: window.google.maps.UnitSystem.METRIC
+    };
+
+    distanceService.getDistanceMatrix(request, (result, status) => {
+      if (status === window.google.maps.DistanceMatrixStatus.OK) {
+        const element = result.rows[0].elements[0];
+
+        if (element.status === 'OK') {
+          const distanceKm = element.distance.value / 1000;
+          console.log(`[MapDisplay] Distance from central: ${distanceKm.toFixed(2)} km`);
+
+          // Callback to App.jsx with the distance
+          onDistanceFromCentral(distanceKm);
+        } else {
+          console.warn(`[MapDisplay] Distance calculation failed: ${element.status}`);
+          onDistanceFromCentral(0); // Reset warning
+        }
+      } else {
+        console.error(`[MapDisplay] DistanceMatrix API failed: ${status}`);
+        onDistanceFromCentral(0); // Reset warning
+      }
+    });
+  }, [mapLoaded, startAddress, centralAddress, onDistanceFromCentral]);
 
   return (
     <div className="card map-card" id="mapCard">

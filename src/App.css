@@ -101,6 +101,63 @@ body::before {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Warning Card for Distant Pickup */
+.warning-card {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 2px solid rgba(251, 191, 36, 0.4);
+  box-shadow:
+    0 4px 20px rgba(251, 191, 36, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin-bottom: 24px;
+  animation: pulseWarning 2s ease-in-out infinite;
+}
+
+@keyframes pulseWarning {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(251, 191, 36, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+.warning-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.warning-icon {
+  width: 28px;
+  height: 28px;
+  color: #fbbf24;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(251, 191, 36, 0.4));
+}
+
+.warning-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.warning-text {
+  color: #fef3c7;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.warning-distance {
+  color: #fed7aa;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0.9;
+}
+
 /* Logo and Header */
 .header-row {
   display: flex;

@@ -50,6 +50,7 @@ function App() {
   // UI state
   const [isTariffModalOpen, setIsTariffModalOpen] = useState(false);
   const [holidays] = useState(() => getNorwegianHolidays());
+  const [distanceFromCentral, setDistanceFromCentral] = useState(0); // Distance from central location (km)
 
   // Refs for keyboard navigation
   const destAddressRef = useRef(null);
@@ -117,6 +118,11 @@ function App() {
       e.preventDefault();
       tripDateRef.current?.focus();
     }
+  }, []);
+
+  // Handle distance from central location (for pickup fee warning)
+  const handleDistanceFromCentral = useCallback((distanceKm) => {
+    setDistanceFromCentral(distanceKm);
   }, []);
 
   // Reset all fields
@@ -222,6 +228,22 @@ function App() {
               showPrintButton={tenant?.features?.showPrintButton !== false}
             />
 
+            {/* Distant Pickup Warning (>15km from central) */}
+            {distanceFromCentral > 15 && (
+              <div className="card warning-card distant-pickup-warning">
+                <div className="warning-header">
+                  <svg className="warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  <span className="warning-title">{t.distantPickupTitle}</span>
+                </div>
+                <p className="warning-text">{t.distantPickupWarning}</p>
+                <p className="warning-distance">
+                  {t.avstand}: {distanceFromCentral.toFixed(1)} km {lang === 'no' ? 'frå sentral' : 'from central'}
+                </p>
+              </div>
+            )}
+
             {tenant?.features?.showTariffTable !== false && (
               <TariffTable
                 km={parseFloat(tripParams.distanceKm) || 0}
@@ -241,11 +263,13 @@ function App() {
                 destAddress={addresses.destAddress}
                 viaAddresses={addresses.viaAddresses}
                 onRouteCalculated={tripParams.updateRouteResults}
+                onDistanceFromCentral={handleDistanceFromCentral}
                 routeTrigger={routeTrigger}
                 translations={t}
                 lang={lang}
                 mapCenter={tenant?.defaults?.mapCenter || { lat: 60.6280, lng: 6.4118 }}
                 mapRegion={tenant?.defaults?.mapsRegion || 'NO'}
+                centralAddress={tenant?.defaults?.startAddress || 'Hestavangen 11, 5700 Voss'}
               />
             </div>
           )}
